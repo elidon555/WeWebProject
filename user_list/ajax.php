@@ -140,15 +140,17 @@ if (isset($_POST['update'])) {
         exit;
     }
 
+    if (intval($dateArray[2]) < 1900) {
+        echo json_encode(array("status" => 404, "message" => "You can not possibly be alive! " . __LINE__));
+        exit;
+    }
+
     if ($dateDifference < 568092165) {
         echo json_encode(array("status" => 404, "message" => "You must be over 18 " . __LINE__));
         exit;
     }
 
-    if (intval($dateArray[2]) < 1900) {
-        echo json_encode(array("status" => 404, "message" => "You can not possibly be alive! " . __LINE__));
-        exit;
-    }
+
 
     // Validimi i E-Mailit
     if (empty($email)) {
