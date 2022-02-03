@@ -12,18 +12,18 @@ if (isset($_POST['add_checking'])) {
     /**
      * Marri mte dhenat nga useri
      */
-    $email = mysqli_real_escape_string($conn,$_POST['email']);
-    $checkin = mysqli_real_escape_string($conn,$_POST['checkin']);
-    $checkout = mysqli_real_escape_string($conn,$_POST['checkout']);
-    $checkinDate = mysqli_real_escape_string($conn,$_POST['checkin_date']);
-    $checkoutDate = mysqli_real_escape_string($conn,$_POST['checkout_date']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $checkin = mysqli_real_escape_string($conn, $_POST['checkin']);
+    $checkout = mysqli_real_escape_string($conn, $_POST['checkout']);
+    $checkinDate = mysqli_real_escape_string($conn, $_POST['checkin_date']);
+    $checkoutDate = mysqli_real_escape_string($conn, $_POST['checkout_date']);
 
-    if ($checkin=="" || $checkout==""){
+    if ($checkin == "" || $checkout == "") {
         echo json_encode(array("status" => 404, "message" => "Error! Checkin is empty! " . __LINE__));
         exit;
     }
 
-    if ($checkinDate=="" || $checkoutDate==""){
+    if ($checkinDate == "" || $checkoutDate == "") {
         echo json_encode(array("status" => 404, "message" => "Error! Date can not be empty! " . __LINE__));
         exit;
     }
@@ -179,38 +179,32 @@ foreach ($data as $key => $row) {
     $id_values[] = $row['user_id'];
 
 
-    $table_data[] = array(
-        "user_id" => $row["user_id"],
-        "show" => '<span id="id-' . $buttonval . '"><button id="button' . $buttonval . '" class="show" style="border:none;background:none;margin-top:8px" class="button-primary" value="' . $buttonval . '"><i class="fas fa-plus-circle text-success" style="font-size:25px" ></i></button></span>',
-        "first_name" => '<span id="name-' . $buttonval . '">' . $row["first_name"] . " " . $row["last_name"] . '</span>',
-        "total_hours_in" => '<span id="hours-' . $buttonval . '"></span>',
-        "total_hours_out" => '<span id="hours-out-' . $buttonval . '"></span>', "dates" => '<span id="dates-' . $buttonval . '"></span>'
+    $table_data[] = array("user_id" => $row["user_id"], "show" => '<span id="id-' . $buttonval . '"><button id="button' . $buttonval . '" class="show" style="border:none;background:none;margin-top:8px" class="button-primary" value="' . $buttonval . '"><i class="fas fa-plus-circle text-success" style="font-size:25px" ></i></button></span>', "first_name" => '<span id="name-' . $buttonval . '">' . $row["first_name"] . " " . $row["last_name"] . '</span>', "total_hours_in" => '<span id="hours-' . $buttonval . '"></span>', "total_hours_out" => '<span id="hours-out-' . $buttonval . '"></span>', "dates" => '<span id="dates-' . $buttonval . '"></span>'
 
 
     );
     $buttonval++;
 
 }
-    /**
-     * Dergojme te dhenat ne front
-     *
-     *
-     */
+/**
+ * Dergojme te dhenat ne front
+ *
+ *
+ */
 
 
+if (!isset($_POST['startDate']) || !isset($_POST['endDate'])) {
+    $startDate = date('Y-m-d', strtotime('-30 days'));
+    $endDate = date('Y-m-d', strtotime('today'));
 
-    if (!isset($_POST['startDate']) || !isset($_POST['endDate'])) {
-        $startDate = date('Y-m-d', strtotime('-30 days'));
-        $endDate = date('Y-m-d', strtotime('today'));
+} else {
 
-    } else {
-
-        $startDate = mysqli_real_escape_string($conn, $_POST['startDate']);
-        $endDate = mysqli_real_escape_string($conn, $_POST['endDate']);
-    }
+    $startDate = mysqli_real_escape_string($conn, $_POST['startDate']);
+    $endDate = mysqli_real_escape_string($conn, $_POST['endDate']);
+}
 
 
-    $sql_get_checkings = 'SELECT
+$sql_get_checkings = 'SELECT
     checkins.id,
     checkins.user_id,
     checkins.check_in_date,
@@ -224,85 +218,83 @@ foreach ($data as $key => $row) {
 
     ';
 
-    for ($i = 0; $i < sizeOf($id_values); $i++) {
+for ($i = 0; $i < sizeOf($id_values); $i++) {
 
-        if (sizeOf($id_values) == 1) {
-            $sql_get_checkings .= ' AND checkins.user_id IN (' . $id_values[$i] . ') ';
-            break;
-        }
-
-        if ($i == 0) {
-            $sql_get_checkings .= ' AND checkins.user_id IN (' . $id_values[$i] . ', ';
-        }
-
-        if ($i == (sizeOf($id_values) - 1)) {
-            $sql_get_checkings .= ' ' . $id_values[$i] . ') ';
-        } else {
-            $sql_get_checkings .= ' ' . $id_values[$i] . ', ';
-        }
+    if (sizeOf($id_values) == 1) {
+        $sql_get_checkings .= ' AND checkins.user_id IN (' . $id_values[$i] . ') ';
+        break;
     }
 
-
-    $result_checkins = mysqli_query($conn, $sql_get_checkings);
-
-    if (!$result_checkins) {
-        echo json_encode(array("status" => 404, "message" => "Internal Server Error " . __LINE__));
-        exit;
+    if ($i == 0) {
+        $sql_get_checkings .= ' AND checkins.user_id IN (' . $id_values[$i] . ', ';
     }
 
-    //krijojme nje funksion qe te na konvertoje kohen ne seconda
+    if ($i == (sizeOf($id_values) - 1)) {
+        $sql_get_checkings .= ' ' . $id_values[$i] . ') ';
+    } else {
+        $sql_get_checkings .= ' ' . $id_values[$i] . ', ';
+    }
+}
+
+
+$result_checkins = mysqli_query($conn, $sql_get_checkings);
+
+if (!$result_checkins) {
+    echo json_encode(array("status" => 404, "message" => "Internal Server Error " . __LINE__));
+    exit;
+}
+
+//krijojme nje funksion qe te na konvertoje kohen ne seconda
 
 //Deklarojme array $checkings ku do ruajme te dhenat
-    $checkins = array();
+$checkins = array();
 
-    $time = time_to_sec('23:59:59');
+$time = time_to_sec('23:59:59');
 
 //deklarojme variablen ku do ruajme oret totale per cdo date
-    $total_hours_in = 0;
+$total_hours_in = 0;
 
 
-    while ($row = mysqli_fetch_assoc($result_checkins)) {
+while ($row = mysqli_fetch_assoc($result_checkins)) {
 
-        //convert 00:00 to 23:59 to avoid miscalculations
-        if ($row['check_out_hour'] == '00:00:00') {
-            $row['check_out_hour'] = '23:59:59';
-        }
-        //3d - checkins per date // shtojme te dhenat baze te checkings
-        $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['check_in_date'] = $row['check_in_date'];
-        $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['check_in_hour'] = $row['check_in_hour'];
-        $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['check_out_hour'] = $row['check_out_hour'];
-        $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['check_out_date'] = $row['check_out_date'];
-
-        $daily_difference = time_to_sec($row['check_out_hour']) - time_to_sec($row['check_in_hour']);
-
-        /**
-         * //2d single date details // llogarisimin oret totale te checkinsave per dite
-         */
-
-        //ne key unik check_in_date ruajme /checkin date / oret totale per date in dhe out / id-ne e userit
-        $checkins[$row['user_id']][$row['check_in_date']]['check_in_date'] = $row['check_in_date'];
-
-        //shtojme diferencen ne ore checkout-checkin per cdo checkings qe kemi brenda nje date
-        $checkins[$row['user_id']][$row['check_in_date']]['total_hours_in'] += $daily_difference;
-
-        //ketu nuk iterojme por shtojme veten diferencen finale, pra 24 ore minus oret qe ka punuar ne total ate dite.
-        $checkins[$row['user_id']][$row['check_in_date']]['total_hours_out'] = $time - $checkins[$row['user_id']][$row['check_in_date']]['total_hours_in'];
-
-        //shtojme user id se na nevojitet
-        $checkins[$row['user_id']][$row['check_in_date']]['user_id'] = $row['user_id'];
-
-
-        //store how many checkings we got per day, by counting number of arrays inside checkins_per_day
-        if (is_array($checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']])) {
-            $checkins[$row['user_id']][$row['check_in_date']]['count'] += 1;
-        }
+    //convert 00:00 to 23:59 to avoid miscalculations
+    if ($row['check_out_hour'] == '00:00:00') {
+        $row['check_out_hour'] = '23:59:59';
     }
+    //3d - checkins per date // shtojme te dhenat baze te checkings
+    $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['check_in_date'] = $row['check_in_date'];
+    $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['check_in_hour'] = $row['check_in_hour'];
+    $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['check_out_hour'] = $row['check_out_hour'];
+    $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['check_out_date'] = $row['check_out_date'];
+
+    $daily_difference = time_to_sec($row['check_out_hour']) - time_to_sec($row['check_in_hour']);
+
+    /**
+     * //2d single date details // llogarisimin oret totale te checkinsave per dite
+     */
+
+    //ne key unik check_in_date ruajme /checkin date / oret totale per date in dhe out / id-ne e userit
+    $checkins[$row['user_id']][$row['check_in_date']]['check_in_date'] = $row['check_in_date'];
+
+    //shtojme diferencen ne ore checkout-checkin per cdo checkings qe kemi brenda nje date
+    $checkins[$row['user_id']][$row['check_in_date']]['total_hours_in'] += $daily_difference;
+
+    //ketu nuk iterojme por shtojme veten diferencen finale, pra 24 ore minus oret qe ka punuar ne total ate dite.
+    $checkins[$row['user_id']][$row['check_in_date']]['total_hours_out'] = $time - $checkins[$row['user_id']][$row['check_in_date']]['total_hours_in'];
+
+    //shtojme user id se na nevojitet
+    $checkins[$row['user_id']][$row['check_in_date']]['user_id'] = $row['user_id'];
+
+    //store how many checkings we got per day, by counting number of arrays inside checkins_per_day
+    if (is_array($checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']])) {
+        $checkins[$row['user_id']][$row['check_in_date']]['count'] += 1;
+    }
+}
 
 //Nese nuk kemi te dhena, i dergojm array bosh.
 if (empty($table_data)) {
     $table_data = [];
 }
-
 
 $response = array("draw" => intval($draw), "iTotalRecords" => $totalRecords, "iTotalDisplayRecords" => $totalRecordwithFilter, "aaData" => $table_data, "checkinsData" => $checkins);
 echo json_encode($response);

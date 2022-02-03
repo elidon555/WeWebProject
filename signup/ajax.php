@@ -42,9 +42,8 @@ if (isset($_POST['signup'])) {
     // Shohim nese ka user me kete E-MAIL dhe numer telefoni
     $query_check = "SELECT email, phone_number from users where email = '" . $email . "' OR phone_number = '" . $phone_number . "' ";
 
-
-
     $result_check = mysqli_query($conn, $query_check);
+
     $num_result = mysqli_num_rows($result_check);
 
 

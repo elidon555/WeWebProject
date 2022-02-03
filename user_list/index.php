@@ -3,7 +3,6 @@
 include('C:\xampp\htdocs\WeWebProject\_partials\header.php');
 include('C:\xampp\htdocs\WeWebProject\_partials\login-check.php');
 
-
 if ($_SESSION['role'] == 'User') {
 
     $_SESSION['no-access'] = "<br><div class='error text-center alert alert-danger' style='width:400px;margin:auto'>You don't have permission to access this page!</div>";
@@ -13,10 +12,6 @@ if ($_SESSION['role'] == 'User') {
 }
 
 ?>
-
-<link rel="stylesheet" type="text/css" href="../_plugins/jquery.dataTables.min.css"/>
-<link rel="stylesheet" type="text/css" href="../_plugins/daterangepicker.css"/>
-
 
 <body>
 

@@ -18,6 +18,7 @@ include_once('login-check.php');
     <link rel="stylesheet" type="text/css" href="../style.css?v=<?= filemtime('../style.css') ?>">
     <link rel="stylesheet" href="../_plugins/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="../_plugins/daterangepicker.css"/>
+    <link rel="stylesheet" type="text/css" href="../_plugins/jquery.dataTables.min.css"/>
     <script src="../_plugins/sweetalert2.min.css"></script>
 
 

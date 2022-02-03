@@ -1,10 +1,8 @@
 <?php include('../_partials/header.php') ?>
 
 
-<title></title>
 
-<link rel="stylesheet" type="text/css" href="../_plugins/jquery.dataTables.min.css"/>
-<link rel="stylesheet" type="text/css" href="../_plugins/daterangepicker.css"/>
+
 <body id="body" style="font-family: Arial">
 
 <div style="width:100% ;margin:auto">
