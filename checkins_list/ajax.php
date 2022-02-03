@@ -257,10 +257,7 @@ $total_hours_in = 0;
 
 while ($row = mysqli_fetch_assoc($result_checkins)) {
 
-    //convert 00:00 to 23:59 to avoid miscalculations
-    if ($row['check_out_hour'] == '00:00:00') {
-        $row['check_out_hour'] = '23:59:59';
-    }
+
     //3d - checkins per date // shtojme te dhenat baze te checkings
     $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['check_in_date'] = $row['check_in_date'];
     $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['check_in_hour'] = $row['check_in_hour'];
@@ -268,6 +265,10 @@ while ($row = mysqli_fetch_assoc($result_checkins)) {
     $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['check_out_date'] = $row['check_out_date'];
 
     $daily_difference = time_to_sec($row['check_out_hour']) - time_to_sec($row['check_in_hour']);
+
+    if ($daily_difference<0){
+        $daily_difference += time_to_sec("24:00:00");
+    }
 
     /**
      * //2d single date details // llogarisimin oret totale te checkinsave per dite
