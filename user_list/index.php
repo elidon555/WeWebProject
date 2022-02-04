@@ -1,13 +1,11 @@
 <?php
-
 include('C:\xampp\htdocs\WeWebProject\_partials\header.php');
 include('C:\xampp\htdocs\WeWebProject\_partials\login-check.php');
 
 /**
  * Nese nuk je Admin te con te profili pasi ske te drejte te shohesh listen e userave
  */
-if ($_SESSION['role'] == 'User') {
-
+if ($_SESSION['role'] == Config::USER) {
     $_SESSION['no-access'] = "<br><div class='error text-center alert alert-danger' style='width:400px;margin:auto'>You don't have permission to access this page!</div>";
 
     header('Location: http://localhost/WeWebProject/profile/index.php');
@@ -28,9 +26,11 @@ if ($_SESSION['role'] == 'User') {
     <br/>
     <button class="btn btn-success float-right" data-toggle="modal" data-target="#signupModal">Add User</button>
     <br><br>
-    <div>
-        <div class="w-100 d-flex justify-content-between shadow-sm p-2 mb-3 bg-white rounded">
 
+
+
+    <div class="row">
+        <div class="col-sm-6 col-md-6 col-xs-12 col-lg-4">
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="inputGroup-sizing-default">Email</span>
@@ -38,7 +38,8 @@ if ($_SESSION['role'] == 'User') {
                 <input id="emailFilter" type="text" class=""
                        placeholder="" aria-controls="user_list" aria-describedby="inputGroup-sizing-default">
             </div>
-
+        </div>
+        <div class="col-sm-6 col-md-6 col-xs-12 col-lg-4">
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="inputGroup-sizing-default">Phone</span>
@@ -47,44 +48,46 @@ if ($_SESSION['role'] == 'User') {
                        aria-controls="user_list" aria-describedby="inputGroup-sizing-default">
 
             </div>
-
+        </div>
+        <div class="col-sm-6 col-md-6 col-xs-12 col-lg-4">
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="inputGroup-sizing-default">Date</span>
                 </div>
                 <input id="dateFilter" type="text" class="form-control" placeholder="" aria-controls="user_list"
                        aria-describedby="inputGroup-sizing-default">
-                <i id="clearDate" onclick="" style="cursor:pointer" class="fas fa-eraser fa-2x"></i>
             </div>
-
         </div>
-        <table id="user_list" class="display" style="width:100%">
-            <thead>
-            <tr>
-                <th>User ID</th>
-                <th>Image</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Atesia</th>
-                <th>Start date</th>
-                <th>Phone Number</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tfoot>
-            <tr>
-                <th>User ID</th>
-                <th>Image</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Atesia</th>
-                <th>Start date</th>
-                <th>Phone Number</th>
-                <th>Actions</th>
-            </tr>
-            </tfoot>
-        </table>
     </div>
+
+    <button id="applyFilter" class="btn btn-dark">Apply Filter</button> <p></p>
+
+    <table id="user_list" class="display" style="width:100%">
+        <thead>
+        <tr>
+            <th>User ID</th>
+            <th>Image</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Atesia</th>
+            <th>Start date</th>
+            <th>Phone Number</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tfoot>
+        <tr>
+            <th>User ID</th>
+            <th>Image</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Atesia</th>
+            <th>Start date</th>
+            <th>Phone Number</th>
+            <th>Actions</th>
+        </tr>
+        </tfoot>
+    </table>
 
 
     <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"

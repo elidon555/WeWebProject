@@ -28,7 +28,6 @@ function create_edit_user() {
         files = $('#file')[0].files[0];
         role = $('#roleUser').is(':checked') ? "User" : "Admin";
         data = new FormData();
-
     }
 
     /**
@@ -76,7 +75,7 @@ function create_edit_user() {
      */
     $.ajax({
 
-        url: "ajax.php",
+        url: "../public/functions.php",
         method: "POST",
         data: data,
         contentType: false,
@@ -98,9 +97,17 @@ function create_edit_user() {
     });
 }
 
-
-
 $(function () {
+    function delay(callback, ms) {
+        var timer = 0;
+        return function() {
+            var context = this, args = arguments;
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                callback.apply(context, args);
+            }, ms || 0);
+        };
+    }
 
     /**
      * Bejme inicializimin e tabeles user_list
@@ -115,21 +122,9 @@ $(function () {
                 /**
                  * Mbasi behet draw tabela te pakten njehere, tani mund te aplikojme filtrin e dates
                  */
-                if (window.allowFilter === 1) {
-                    var email = $('#emailFilter').val();
-                    var phone = $('#phoneFilter').val();
-                    var date_s = $('#dateFilter');
-                    if ($('#dateFilter').val() != "") {
-                        var startDate = date_s.data('daterangepicker').startDate.format("YYYY-MM-DD");
-                        var endDate = date_s.data('daterangepicker').endDate.format("YYYY-MM-DD");
-                    }
-                    data.startDate = startDate;
-                    data.endDate = endDate;
-                    data.email = email;
-                    data.phone_number = phone;
-
-                }
-
+                data.email = $('#emailFilter').val();
+                data.phone_number = $('#phoneFilter').val();
+                data.daterange = $('#dateFilter').val();
             },
         },
 
@@ -149,31 +144,49 @@ $(function () {
             "data": "phone_number"
         }, {
             "data": "actions"
-        },], "initComplete": function (settings, json) {
+        },], ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }, "createdRow": function (row, data, dataIndex) {
             /**
-             * Search on click
+             * EDIT ROW DATA
              */
-            var input = $('.dataTables_filter input').unbind(), self = this.api(), $searchButton = $('<button>')
-                .html('<i class="fas fa-search text-success"></i>')
-                .click(function () {
-                    self.search(input.val()).draw();
-                }), $clearButton = $('<button>')
-                .html('<i class="fas fa-search-minus text-danger"></i>')
-                .click(function () {
-                    input.val('');
-                    $searchButton.click();
-                })
-            $('.dataTables_filter').append($searchButton, $clearButton);
+            if (data['image_name']) {
+                //Use path to get image
+                $(row).children('td').eq(1).html(`<img  height="50px" width="50px" src="../_photos/${data['image_name']}">`)
+            }
+
+            if (data['actions']) {
+                $(row).children('td').eq(7).html(`
+
+            <button class='btn btn-primary btn-sm edit_btn' data-toggle='modal' data-target='#editModal' type='button' class='button-primary'
+            value='${data['user_id']}'>View</button>
+            
+            <button class='btn btn-danger btn-sm delete'  type='button'  class='button-danger'
+            value='${data['user_id']}'>Delete</button>
+                `)
+            }
+
+        }, "initComplete": function (settings, json) {
             /**
-             * End of search on click
+             * Apply filter when clicking enter
              */
+            var search_s = $("div.dataTables_filter input");
+            search_s.unbind();
+
+            search_s.on("keyup", delay(function (event) {
+
+                    table.search( this.value ).draw()
+
+            },700));
+
             window.allowFilter = 1
-
-
             var dateFilter_s = $('#dateFilter');
-
             dateFilter_s.daterangepicker({
-
                 singleDatePicker: false,
                 showDropdowns: true,
                 minYear: 1901,
@@ -181,12 +194,14 @@ $(function () {
                 maxYear: parseInt(moment().format('YYYY'), 10),
                 locale: {
                     cancelLabel: 'Clear'
-                }
+                },
+
+
             })
 
             //Ne momentin qe aplikojme daterangepicker, inputi merr vleren e dates
             dateFilter_s.on('apply.daterangepicker', function (ev, picker) {
-                $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
             });
 
             //Nese i japim cancel daterangepicker, fshijme vleren e inputit
@@ -200,7 +215,7 @@ $(function () {
      * EDIT MODAL
      */
     $('#dateFilter').on('apply.daterangepicker', function (ev, picker) {
-        $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+        $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
     });
 
     var edit_modal_s = $("#editModal")
@@ -235,6 +250,10 @@ $(function () {
         //Bejme load daterangepicker
         single_date_picker()
     })
+
+    $('#applyFilter').on('click', function () {
+        table.draw();
+    })
     /**
      * END OF SIGNUP MODAL
      */
@@ -248,6 +267,7 @@ $(function () {
         load_single_user_detail()
         delete_user()
     });
+
 
     //full validation_check real time
     full_check()
@@ -286,7 +306,7 @@ $(function () {
                                 Swal.fire('Error!', response['message'], 'error',)
                             } else {
                                 Swal.fire('Success!', response['message'], 'success',)
-                                $('#loadAfterAction').click()
+
                             }
                         }
                     })
@@ -301,9 +321,10 @@ $(function () {
     }
 
     function load_single_user_detail() {
-        $('nobr > button:first-child').on('click', function () {
+        $('.edit_btn').on('click', function () {
 
             id = $(this).attr("value");
+            console.log($(this))
 
             $.ajax({
                 type: "POST",

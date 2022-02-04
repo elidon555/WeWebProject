@@ -43,8 +43,8 @@ $(function () {
 
             //Postojme te dhenat ne backend
             $.ajax({
-                url: "ajax.php", method: "POST", data: {
-                    action: 'signup',
+                url: "../public/functions.php", method: "POST", data: {
+                    action: 'update||delete',
                     terms: '1',
                     first_name: first_name,
                     last_name: last_name,

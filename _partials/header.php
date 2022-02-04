@@ -2,7 +2,7 @@
 
 include_once('../_config/constants.php');
 include_once('login-check.php');
-
+include_once('../Config.php');
 //Authorization
 //Check if user is logged in or not
 
