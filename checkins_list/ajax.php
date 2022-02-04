@@ -6,7 +6,7 @@ include_once('../public/functions.php');
 /**
  *
  */
-if ($_POST['action']=='add_checking') {
+if ($_POST['action'] == 'add_checking') {
 
     $conn = mysqli_connect("localhost", "root", "root", "weweb");
 
@@ -64,7 +64,7 @@ if ($_POST['action']=='add_checking') {
  * @return int
  */
 
-if ($_POST['action']=='load_table') {
+if ($_POST['action'] == 'load_table') {
 
 
     $draw = $_POST['draw'];
