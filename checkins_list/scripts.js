@@ -21,7 +21,8 @@ $(function () {
          */
         var tbl1 = $('#checkins_list').DataTable({
             "processing": true, "serverSide": true, "ordering": true, pageLength: 10, lengthMenu: [5, 10, 20], "ajax": {
-                "data": function (d) {
+                "data": function (data) {
+                    data.action='load_table'
                     //Ne momentin qe bejme load tabelen, backendi merr diten e sotme minus 30 dite
                     if (window.allowDateFilter === 1) {
                         /**
@@ -30,8 +31,8 @@ $(function () {
                         var date_s = $('#date');
                         var startDate = date_s.data('daterangepicker').startDate.format("YYYY-MM-DD");
                         var endDate = date_s.data('daterangepicker').endDate.format("YYYY-MM-DD");
-                        d.startDate = startDate;
-                        d.endDate = endDate;
+                        data.startDate = startDate;
+                        data.endDate = endDate;
                     }
                 }, 'url': 'ajax.php', 'type': 'post'
             }, "columns": [{
@@ -169,7 +170,7 @@ $(function () {
 
                 //Ndryshojme ikonen kur tabela mbyllet
 
-                tr.find('.fas').attr('class','fas fa-plus-circle fa-lg text-success')
+                tr.find('.fas').attr('class', 'fas fa-plus-circle fa-lg text-success')
 
 
                 openedTables.delete(index + 1);
@@ -203,16 +204,14 @@ $(function () {
 
                 //Ndryshojme ikonen kur tabela hapet
 
-                tr.find('.fas').attr('class','fas fa-minus-circle fa-lg text-danger')
+                tr.find('.fas').attr('class', 'fas fa-minus-circle fa-lg text-danger')
 
                 //Put table index on this array so when we search
                 //another date,  we keep it opened
             }
             event.stopImmediatePropagation()
         });
-
     }
-
 
     function format_tbl2_html(row) {
         /**
@@ -258,8 +257,6 @@ $(function () {
                 {
                     user_id, check_in_date, total_hours_in, total_hours_out, count
                 }))
-
-
             //konvertojme te dhenat e mesiperme nga seconda ne kohe
             table_data.forEach(function (result) {
                 result.total_hours_in = sec_to_hour(result.total_hours_in, 0)
@@ -318,8 +315,7 @@ $(function () {
                 row.child.hide();
 
                 //Ndryshim ikone ne hide
-                var icon = tr.find('.fa-minus-circle').removeClass()
-                icon.addClass('fas fa-plus-circle fa-lg text-dark')
+                tr.find('.fa-minus-circle').attr('class','fas fa-plus-circle fa-lg text-dark');
 
             } else {
                 // Hapim rreshtin
@@ -335,10 +331,7 @@ $(function () {
                 initialize_table_3(parseInt(user_id));
 
                 //Ndryshim ikone ne show
-                icon = tr.find('.fa-plus-circle').removeClass()
-                icon.addClass('fas fa-minus-circle fa-lg text-dark')
-
-
+                tr.find('.fa-plus-circle').attr('class','fas fa-minus-circle fa-lg text-dark')
             }
             //Stop the button from clicking twice somehow
             //because before this, it used to cause a doubleclick bug
@@ -447,7 +440,7 @@ $(function () {
             //I cojme ne backend
             $.ajax({
                 url: "ajax.php", method: "POST", data: {
-                    add_checking: 1,
+                    action: 'add_checking',
                     email: email,
                     checkin: checkin,
                     checkout: checkout,

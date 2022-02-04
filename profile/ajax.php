@@ -1,7 +1,7 @@
 <?php
 
 include_once('../_config/constants.php');
-include_once('../_config/upload-image.php');
+include_once('../public/functions.php');
 
 
 
@@ -39,7 +39,8 @@ if (isset($_SESSION['user'])) {
 
 
 }
-if (isset($_POST['update'])) {
+
+if ($_POST['action']=="update") {
 
     //Get values from form to update
     $first_name = mysqli_real_escape_string($conn, strtoupper($_POST['first_name']));
@@ -184,7 +185,7 @@ if (isset($_POST['update'])) {
 
 
 }
-if (isset($_POST['edit_pwd'])) {
+if ($_POST['action']=='edit_pwd') {
 
 
     /**

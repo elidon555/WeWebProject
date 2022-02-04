@@ -7,16 +7,16 @@ function isEmpty(value) {
     );
 }
 
-const names_pattern = /^[a-zA-Z ]+$/;
+const letters_pattern = /^[a-zA-Z ]+$/;
 const phone_pattern = /^[0-9]*$/
 const email_pattern = /^\w+([-+.'][^\s]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
 const password_pattern = /^(?=.*[0-9])(?=.*[!@#$%^&*\.])[a-zA-Z0-9!@#$%^&*\.]{8,100}$/;
 
 function full_check() {
 
-    check_validation(names_pattern, "First_name")
-    check_validation(names_pattern, "Last_name")
-    check_validation(names_pattern, "Atesia")
+    check_validation(letters_pattern, "First_name")
+    check_validation(letters_pattern, "Last_name")
+    check_validation(letters_pattern, "Atesia")
     check_validation(null, "Date")
     check_validation(email_pattern, "Email")
     check_validation(phone_pattern, "Phone_number")
@@ -36,11 +36,10 @@ function check_validation(pattern, string) {
         } else {
             check(pattern, string)
         }
-
     })
 }
 
-function single_date_picker(){
+function single_date_picker() {
     $('input[name="date"]').daterangepicker({
         singleDatePicker: true, showDropdowns: true, minYear: 1901, maxYear: parseInt(moment().format('YYYY'), 10),
 
@@ -50,7 +49,10 @@ function single_date_picker(){
     })
 }
 
-
+/**
+ * Validon te dhenat e userit ne front-end
+ * @returns {number}
+ */
 function validate_submit() {
     /**
      * Validimi i te dhenave
@@ -58,13 +60,13 @@ function validate_submit() {
     var error = 0;
 
     // validimi i emrit
-    if (check(names_pattern, "First_name")) error++
+    if (check(letters_pattern, "First_name")) error++
 
     // validimi i mbiemrit
-    if (check(names_pattern, "Last_name")) error++;
+    if (check(letters_pattern, "Last_name")) error++;
 
     //validimi i atesise
-    if (check(names_pattern, "Atesia")) error++;
+    if (check(letters_pattern, "Atesia")) error++;
 
     // validimi i emailit
     if (check(email_pattern, "Email")) error++;
@@ -83,11 +85,14 @@ function validate_submit() {
 
     if (check(null, "terms")) error++
 
-
-
     return error;
 }
 
+/**
+ * Validimi i nje imazhi
+ * @param file
+ * @returns {boolean|number}
+ */
 function image_check(file) {
 
     var error = 0;
@@ -108,17 +113,12 @@ function image_check(file) {
     var file_extension_list = ['png', 'jpg', 'jpeg']
     var size = file['size'];
 
-
     if (!file_extension_list.includes(file_extension)) {
         swal.fire('Failed!', 'File format is not correct', 'error',)
         error++
-
-
     } else if (size >= 5242880) {
         swal.fire('Failed!', 'File must be less than 5 Megabytes', 'error',)
         error++
-
-
     }
     return error;
 
@@ -128,7 +128,7 @@ function check(pattern, string) {
 
 
     if (string === "terms") {
-        if ($(`#terms`).length==0) return false;
+        if ($(`#terms`).length == 0) return false;
         if ($(`#terms`).is(':checked')) {
             $(`#terms_error_message`).hide();
             return false;
@@ -142,7 +142,6 @@ function check(pattern, string) {
     if (window.edit === 1) {
         string = new_string
     }
-
 
     if ((window.edit === 1)) {
         var arrayValueCheck = ["date", "confirm_password", "email", "phone_number", "password"];

@@ -3,6 +3,9 @@
 include('C:\xampp\htdocs\WeWebProject\_partials\header.php');
 include('C:\xampp\htdocs\WeWebProject\_partials\login-check.php');
 
+/**
+ * Nese nuk je Admin te con te profili pasi ske te drejte te shohesh listen e userave
+ */
 if ($_SESSION['role'] == 'User') {
 
     $_SESSION['no-access'] = "<br><div class='error text-center alert alert-danger' style='width:400px;margin:auto'>You don't have permission to access this page!</div>";
@@ -26,6 +29,35 @@ if ($_SESSION['role'] == 'User') {
     <button class="btn btn-success float-right" data-toggle="modal" data-target="#signupModal">Add User</button>
     <br><br>
     <div>
+        <div class="w-100 d-flex justify-content-between shadow-sm p-2 mb-3 bg-white rounded">
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-default">Email</span>
+                </div>
+                <input id="emailFilter" type="text" class=""
+                       placeholder="" aria-controls="user_list" aria-describedby="inputGroup-sizing-default">
+            </div>
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-default">Phone</span>
+                </div>
+                <input id="phoneFilter" type="number" class="" placeholder=""
+                       aria-controls="user_list" aria-describedby="inputGroup-sizing-default">
+
+            </div>
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-default">Date</span>
+                </div>
+                <input id="dateFilter" type="text" class="form-control" placeholder="" aria-controls="user_list"
+                       aria-describedby="inputGroup-sizing-default">
+                <i id="clearDate" onclick="" style="cursor:pointer" class="fas fa-eraser fa-2x"></i>
+            </div>
+
+        </div>
         <table id="user_list" class="display" style="width:100%">
             <thead>
             <tr>
@@ -171,8 +203,6 @@ if ($_SESSION['role'] == 'User') {
                     </div>
 
 
-
-
                     <div class="form-group text-center">
                         <img id="edit_form_image" src="" width="400px">
                     </div>
@@ -182,7 +212,7 @@ if ($_SESSION['role'] == 'User') {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" onclick="edit_user()"
+                    <button type="button" onclick="create_edit_user()"
                             class="btn btn-success">Save changes
                     </button>
                 </div>
@@ -308,7 +338,7 @@ if ($_SESSION['role'] == 'User') {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" onclick="create_new_user()"
+                    <button type="button" onclick="create_edit_user()"
                             class="btn btn-success">
                         Save changes
                     </button>

@@ -1,17 +1,13 @@
 <?php include('../_partials/header.php') ?>
 
 
-
-
 <body id="body" style="font-family: Arial">
 
 <div style="width:100% ;margin:auto">
 
 
     <br>
-    <?php
-    $query = "select first_name,last_name,username from users";
-    ?>
+
     <div class="container">
         <h2 style="text-align:center">Internship Project</h2>
         <div class="card">
@@ -76,14 +72,12 @@
                 <div class="modal-body">
                     <form style="width:400px;margin:auto" id="addUser" name="addUser" action="" method="POST">
 
-
                         <div class="form-group ">
                             <label for="email">Email</label>
                             <input type="text" class="form-control loginForm" name="first_name"
                                    placeholder="Enter Email" id="email">
                             <small class="error_form" id="First_name_error_message"></small>
                         </div>
-
 
                         <div class="form-group">
                             <label for="daterange">Check in - Check out Date</label>
@@ -92,14 +86,12 @@
                             <small class="error_form" id="Date_error_message"></small>
                         </div>
 
-
                         <div class="form-group">
                             <label for="checkin">Check in</label>
                             <input type="time" name="timestamp" step="1" class="form-control loginForm"
                                    placeholder="Phone number" id="checkin" value="">
                             <small class="error_form" id="Phone_number_error_message"></small>
                         </div>
-
 
                         <div class="form-group">
                             <label for="checkout">Check out</label>
@@ -108,15 +100,12 @@
                             <small class="error_form" id="Phone_number_error_message"></small>
                         </div>
 
-
                         <div class="text-center">
                             <button style="display:none" type="submit" name="submit"
                                     class="btn btn-primary profile-button alignButtonCenter pl-5 pr-5" id="addCheckin">
                                 Save profile
                             </button>
-
                         </div>
-
 
                     </form>
                 </div>

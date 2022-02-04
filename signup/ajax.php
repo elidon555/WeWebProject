@@ -8,13 +8,7 @@ if (isset($_SESSION['success-signup'])) {
     echo "<br>";
 }
 
-if (isset($_SESSION['email-exists'])) {
-    echo $_SESSION['email-exists']; //Displaying session
-    unset($_SESSION['email-exists']); //Removing session
-    echo "<br>";
-}
-
-if (isset($_POST['signup'])) {
+if ($_POST['action']=="signup") {
 
     /**
      * Marrja e te dhenave qe vijne nga front end per userin qe po rregjistrohet
@@ -46,20 +40,15 @@ if (isset($_POST['signup'])) {
 
     $num_result = mysqli_num_rows($result_check);
 
-
     if (!$result_check) {
         echo json_encode(array("status" => 404, "message" => "Internal Server Error " . __LINE__));
         exit;
     }
 
-
-
     if ($num_result > 0) {
         echo json_encode(array("status" => 404, "message" => "E-Mail or phone number already exists on the system " . __LINE__));
         exit;
     }
-
-
 
     // validimi i emrit
     if (empty($first_name)) {
@@ -138,21 +127,7 @@ if (isset($_POST['signup'])) {
         exit;
     }
 
-    function validate_password($pwd): bool
-    {
-        if (
-            !preg_match('@[A-Z]@', $pwd) or
-            !preg_match('@[a-z]@', $pwd) or
-            !preg_match('@[0-9]@', $pwd) or
-            !preg_match('@[^\w]@', $pwd) or
-            !strlen($pwd) < 8
-        )
-            return false;
 
-        else {
-            return true;
-        }
-    }
 
 
     if (validate_password($pwd)) {

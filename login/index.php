@@ -37,7 +37,6 @@
 
         </div>
         <div class="form-group">
-
             <input id="password" type="password" name="password" class="form-control loginForm" placeholder="Password">
         </div>
 
@@ -70,7 +69,7 @@
 </body>
 
 <?php
-include_once ('../_partials/footer.php');
+include_once('../_partials/footer.php');
 ?>
 
 <script type="text/javascript" src="scripts.js?v=<?= filemtime('files/js/scripts.js') ?>"></script>

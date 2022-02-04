@@ -44,7 +44,7 @@ $(function () {
             //Postojme te dhenat ne backend
             $.ajax({
                 url: "ajax.php", method: "POST", data: {
-                    signup: 1,
+                    action: 'signup',
                     terms: '1',
                     first_name: first_name,
                     last_name: last_name,

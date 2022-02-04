@@ -1,24 +1,39 @@
-function create_new_user() {
+function create_edit_user() {
 
     /**
      * Marrim te henat qe ka plotesuar perdoruesi
      */
-    var first_name = $('#First_name').val();
-    var last_name = $('#Last_name').val();
-    var atesia = $('#Atesia').val();
-    var date = $('#Date').val();
-    var email = $('#Email').val();
-    var phone_number = $('#Phone_number').val();
-    var password = $('#Password').val();
-    var confirm_password = $('#Confirm_password').val();
-    var files = $('#File')[0].files[0];
-    var fd = new FormData();
+    if (window.edit == 0) {
 
+        var first_name = $('#First_name').val();
+        var last_name = $('#Last_name').val();
+        var atesia = $('#Atesia').val();
+        var date = $('#Date').val();
+        var email = $('#Email').val();
+        var phone_number = $('#Phone_number').val();
+        var password = $('#Password').val();
+        var confirm_password = $('#Confirm_password').val();
+        var files = $('#File')[0].files[0];
+        var role = $('#roleUser').is(':checked') ? "User" : "Admin";
+        var data = new FormData();
+    } else {
+        first_name = $('#first_name').val();
+        last_name = $('#last_name').val();
+        atesia = $('#atesia').val();
+        date = $('#date').val();
+        email = $('#email').val();
+        phone_number = $('#phone_number').val();
+        password = $('#password').val();
+        confirm_password = $('#confirm_password').val();
+        files = $('#file')[0].files[0];
+        role = $('#roleUser').is(':checked') ? "User" : "Admin";
+        data = new FormData();
+
+    }
 
     /**
      * Validimi i te dhenave
      */
-
         //Bejme validate te gjitha fushat
     var error = validate_submit();
 
@@ -26,151 +41,63 @@ function create_new_user() {
     error += image_check(files);
 
 
-    //Nese nuk kemi errore, procedojme
-    if (error == 0) {
-
-        var role;
-
-        //I shtojme rolin userit
-        if ($('#roleUser').is(':checked')) {
-            role = "Admin";
-        } else {
-            role = "User";
-        }
-        /////////
-
-        /**
-         * Ruajme te dhenat ne form data
-         */
-        fd.append('file', files);
-        fd.append('add', "1");
-        fd.append('id', window.id);
-        fd.append('first_name', first_name);
-        fd.append('last_name', last_name);
-        fd.append('atesia', atesia);
-        fd.append('date', date)
-        fd.append('email', email);
-        fd.append('phone_number', phone_number);
-        fd.append('password', password);
-        fd.append('confirm_password', confirm_password);
-        fd.append('role', role);
-
-        /**
-         * I dergojme backend-it te gjitha te dhenat
-         */
-        $.ajax({
-            url: "ajax.php", method: "POST", data: fd, contentType: false, processData: false, cache: false,
-
-            success: function (response) {
-
-                response = JSON.parse(response);
-
-                if (response.status != 200) {
-                    Swal.fire('Error!', response['message'], 'error',)
-                } else {
-                    Swal.fire('Success!', 'Your account registered successfully', 'success',)
-                    $('.modal-footer >button:first-child').click()
-                    $('#loadAfterAction').click()
-                }
-            }, dataType: 'text'
-        });
-        /**
-         * EDIT USER END
-         */
-        return true;
-
-    } else {
-
+    /**
+     * Nese ka error shfaq mesazh error
+     */
+    if (error > 0) {
         Swal.fire('Please enter all the fields correctly!', '', 'error',)
-
         return false;
     }
-}
-function edit_user() {
 
-        var error = 0;
+    //Nese nuk kemi errore, procedojme
 
-        /**
-         * Marrim te henat qe ka plotesuar perdoruesi
-         */
+    /////////
 
-        var first_name = $('#first_name').val();
-        var last_name = $('#last_name').val();
-        var atesia = $('#atesia').val();
-        var date = $('#date').val();
-        var email = $('#email').val();
-        var phone_number = $('#phone_number').val();
-        var password = $('#password').val();
-        var confirm_password = $('#confirm_password').val();
-        var files = $('#file')[0].files[0];
-        var fd = new FormData();
+    /**
+     * Ruajme te dhenat ne form data
+     */
+    data.append('file', files);
+    data.append('action', "update||delete");
+    if (window.edit == 1) {
+        data.append('id', window.id);
+    }
+    data.append('first_name', first_name);
+    data.append('last_name', last_name);
+    data.append('atesia', atesia);
+    data.append('date', date)
+    data.append('email', email);
+    data.append('phone_number', phone_number);
+    data.append('password', password);
+    data.append('confirm_password', confirm_password);
+    data.append('role', role);
 
+    /**
+     * I dergojme backend-it te gjitha te dhenat
+     */
+    $.ajax({
 
-        /**
-         * Validimi i te dhenave
-         */
+        url: "ajax.php",
+        method: "POST",
+        data: data,
+        contentType: false,
+        processData: false,
+        cache: false,
+        success: function (response) {
 
-        // validimi i emrit
+            response = JSON.parse(response);
 
-        error += validate_submit()
-        error += image_check()
-
-
-
-        //Nese nuk kemi errore,procedojme
-        if (error === 0) {
-
-            var role;
-
-            if ($('#roleUser').is(':checked')) {
-                role = "User";
+            if (response.status != 200) {
+                Swal.fire('Error!', response.message, 'error',)
             } else {
-                role = "Admin";
+                Swal.fire('Success!', response.message, 'success',)
+                $('.modal-footer >button:first-child').click()
+                $('#loadAfterAction').click()
             }
-            /////////
-
-            fd.append('file', files);
-            fd.append('update', "1");
-            fd.append('id', window.id);
-            fd.append('first_name', first_name);
-            fd.append('last_name', last_name);
-            fd.append('atesia', atesia);
-            fd.append('date', date)
-            fd.append('email', email);
-            fd.append('phone_number', phone_number);
-            fd.append('password', password);
-            fd.append('confirm_password', confirm_password);
-            fd.append('role', role);
-
-            $.ajax({
-                url: "ajax.php", method: "POST", data: fd, contentType: false, processData: false, cache: false,
-
-                success: function (response) {
-
-                    response = JSON.parse(response);
-
-                    if (response.status != 200) {
-                        Swal.fire('Error!', response['message'], 'error',)
-                    } else {
-                        Swal.fire('Success!', 'Your account registered successfully', 'success',)
-                        $('.modal-footer >button:first-child').click()
-                        $('#loadAfterAction').click()
-                    }
-                }, dataType: 'text'
-            });
-            /**
-             * EDIT USER END
-             */
-            return true;
-
-        } else {
-
-            Swal.fire('Please enter all the fields correctly!', '', 'error',)
-
-            return false;
-        }
-
+        },
+        dataType: 'text'
+    });
 }
+
 
 
 $(function () {
@@ -180,7 +107,9 @@ $(function () {
      */
     var table = $('#user_list').DataTable({
         "processing": true, "serverSide": true, "ordering": true, "orderCellsTop": true, "fixedHeader": true, "ajax": {
-            'url': 'ajax.php', 'type': 'post', "data": function (d) {
+            'url': 'ajax.php', 'type': 'post', "data": function (data) {
+
+                data.action = "load_table";
                 //Ne momentin qe bejme load tabelen, backendi merr diten e sotme minus 30 dite
 
                 /**
@@ -194,10 +123,11 @@ $(function () {
                         var startDate = date_s.data('daterangepicker').startDate.format("YYYY-MM-DD");
                         var endDate = date_s.data('daterangepicker').endDate.format("YYYY-MM-DD");
                     }
-                    d.startDate = startDate;
-                    d.endDate = endDate;
-                    d.email = email;
-                    d.phone_number = phone;
+                    data.startDate = startDate;
+                    data.endDate = endDate;
+                    data.email = email;
+                    data.phone_number = phone;
+
                 }
 
             },
@@ -239,12 +169,6 @@ $(function () {
              */
             window.allowFilter = 1
 
-            let selector = $('#user_list_filter');
-            selector.prepend('<label>Email:<input id="emailFilter" type="search" class="" placeholder="" aria-controls="user_list"></label>')
-            selector.prepend('<label>Phone:<input id="phoneFilter" type="number" class="" placeholder="" aria-controls="user_list"></label>')
-            selector.prepend('<label>Date:<input id="dateFilter" type="text" class="" placeholder="" aria-controls="user_list"> </label><i id="clearDate" onclick="" style="cursor:pointer" class="fas fa-eraser fa-2x"></i>')
-
-            $("#user_list_filter").addClass('w-100 d-flex justify-content-between')
 
             var dateFilter_s = $('#dateFilter');
 
@@ -269,11 +193,8 @@ $(function () {
             dateFilter_s.on('cancel.daterangepicker', function (ev, picker) {
                 $(this).val('');
             });
-
         }
-
     })
-
 
     /**
      * EDIT MODAL
@@ -297,7 +218,6 @@ $(function () {
     /**
      * END OF EDIT MODAL
      */
-
 
     /**
      * SIGNUP MODAL
@@ -354,7 +274,7 @@ $(function () {
                 if (result.isConfirmed) {
                     $.ajax({
                         url: "ajax.php", method: "POST", data: {
-                            delete: 1, id: id
+                            action: "delete", id: id
 
                         }, cache: false,
 
@@ -370,20 +290,25 @@ $(function () {
                             }
                         }
                     })
+                } else {
+                    Swal.fire('Action canceled!', '', 'info')
                 }
+
+
             });
 
         })
     }
+
     function load_single_user_detail() {
         $('nobr > button:first-child').on('click', function () {
 
-           id = $(this).attr("value");
+            id = $(this).attr("value");
 
             $.ajax({
                 type: "POST",
                 url: "ajax.php",
-                data: {id: window.id, load_single_user: 1},
+                data: {id: window.id, action: 'load_single_user'},
                 cache: false,
                 success: function (data) {
                     data = JSON.parse(data);
@@ -417,10 +342,6 @@ $(function () {
             });
         });
     }
-
-
-
-
 })
 
 

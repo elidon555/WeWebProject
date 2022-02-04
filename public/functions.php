@@ -2,7 +2,11 @@
 
 function uploadImage($file, $old_image)
 {
-    if(empty($file['name'])){
+    if ($old_image==""){
+        return "default.jpg";
+    }
+
+    if (empty($file['name'])) {
         return $old_image;
     }
 
@@ -21,11 +25,7 @@ function uploadImage($file, $old_image)
     /**
      * Percaktojme llojin e files
      */
-    $valid_extensions = array(
-        'jpg' => "jpg",
-        'jpeg' => "jpeg",
-        'png' => "png",
-    );
+    $valid_extensions = array('jpg' => "jpg", 'jpeg' => "jpeg", 'png' => "png",);
     //shikojme cfare extensioni ka
 //    $location = "../../_photos/" . $image;
 //    $imageFileType = pathinfo($location, PATHINFO_EXTENSION);
@@ -46,5 +46,29 @@ function uploadImage($file, $old_image)
         return $old_image;
     }
 }
+function time_to_sec($time): int
+{
+    return strtotime($time) - strtotime('TODAY');
+}
+function empty_data($total_records, $error = "")
+{
+    $response = array("draw" => intval($draw), "iTotalRecords" => $total_records, "iTotalDisplayRecords" => 0, "aaData" => array(), "error" => $error,);
+    echo json_encode($response);
+    exit;
+}
+function validate_password($pwd): bool
+{
+    if (
+        !preg_match('@[A-Z]@', $pwd) or
+        !preg_match('@[a-z]@', $pwd) or
+        !preg_match('@[0-9]@', $pwd) or
+        !preg_match('@[^\w]@', $pwd) or
+        !strlen($pwd) < 8
+    )
+        return false;
 
+    else {
+        return true;
+    }
+}
 ?>

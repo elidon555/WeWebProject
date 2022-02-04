@@ -14,7 +14,7 @@ if (isset($_SESSION['not-logged-in'])) {
     echo "<br>";
 }
 
-if (isset($_POST['login'])) {
+if ($_POST['action']=='login') {
 
 
     $email = mysqli_real_escape_string($conn, $_POST['email']);

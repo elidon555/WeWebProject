@@ -6,7 +6,7 @@ $(function () {
         $("#file").click();
     });
 
-   single_date_picker()
+    single_date_picker()
 
     /**
      * Definojme regex-at per fushat me poshte
@@ -56,7 +56,7 @@ $(function () {
                     //store all data below
                 var data = new FormData();
                 data.append('file', files);
-                data.append('update', "1");
+                data.append('action', "update");
                 data.append('first_name', first_name);
                 data.append('last_name', last_name);
                 data.append('atesia', atesia);
@@ -86,12 +86,10 @@ $(function () {
                 });
 
                 return true;
-
             } else {
                 Swal.fire('Please enter all the fields correctly!', '', 'error',)
                 return false;
             }
-
         })
     }
 
@@ -109,12 +107,10 @@ $(function () {
             //Nese nuk kemi errore,procedojme
             if (error == 0) {
 
-
                 /**
                  * Marrim te dhenat nga useri
                  */
-
-                //Marrim passwordin e vjeter
+                    //Marrim passwordin e vjeter
                 var old_password = $('#old_password').val();
 
                 //Marrim passwordin e ri
@@ -127,7 +123,7 @@ $(function () {
                 //I cojme back-endit te dhenat
                 $.ajax({
                     url: "ajax.php", method: "POST", data: {
-                        edit_pwd: 1, old_password: old_password, password: password, confirm_password: confirm_password,
+                        action: 'edit_pwd', old_password: old_password, password: password, confirm_password: confirm_password,
                     }, cache: false,
 
                     success: function (response) {
