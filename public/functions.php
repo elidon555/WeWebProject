@@ -222,6 +222,7 @@ if ($_POST['action'] == 'update||delete') {
                     phone_number='" . $phone_number . "',
                     date_of_birth='" . $date . "',
                     image_name='" . $image . "'
+                    
         ";
 
 

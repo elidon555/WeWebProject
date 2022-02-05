@@ -34,9 +34,12 @@
                         <th>Show</th>
                         <th>ID</th>
                         <th>Name</th>
-                        <th>Total hours in</th>
-                        <th>Total hours out</th>
                         <th>Dates</th>
+                        <th>Normal hours</th>
+                        <th>Overtime</th>
+                        <th>Total hours</th>
+                        <th>Pay/Hour</th>
+                        <th>Salary</th>
                     </tr>
                     </thead>
                     <tfoot>
@@ -44,9 +47,12 @@
                         <th>Show</th>
                         <th>ID</th>
                         <th>Name</th>
-                        <th>Total hours in</th>
-                        <th>Total hours out</th>
                         <th>Dates</th>
+                        <th>Normal hours</th>
+                        <th>Overtime</th>
+                        <th>Total hours</th>
+                        <th>Pay/Hour</th>
+                        <th>Salary</th>
                     </tr>
                     </tfoot>
                 </table>

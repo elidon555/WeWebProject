@@ -22,7 +22,7 @@ $(function () {
         var tbl1 = $('#checkins_list').DataTable({
             "processing": true, "serverSide": true, "ordering": true, pageLength: 10, lengthMenu: [5, 10, 20], "ajax": {
                 "data": function (data) {
-                    data.action='load_table'
+                    data.action = 'load_table'
                     //Ne momentin qe bejme load tabelen, backendi merr diten e sotme minus 30 dite
                     if (window.allowDateFilter === 1) {
                         /**
@@ -43,16 +43,59 @@ $(function () {
                 "data": null,
                 "defaultContent": '<i class="fas fa-plus-circle fa-lg text-success" style="font-size:25px" aria-hidden="true"></i>'
             }, {
-                "data": "first_name"
+                "data": "name"
+            }, {
+                "data": "dates"
+            }, {
+                "data": "normal_hours"
+            }, {
+                "data": "overtime"
             }, {
                 "data": "total_hours_in"
             }, {
-                "data": "total_hours_out"
+                "data": "salary_per_hour"
             }, {
-                "data": "dates"
+                "data": "salary"
             }], "columnDefs": [{
                 "targets": [0], "visible": false, "searchable": true, "width": "0%"
-            }], "drawCallback": function (settings) {
+            }], "createdRow": function (row, data, dataIndex) {
+                /**
+                 * EDIT ROW DATA
+                 */
+
+
+                if (data['show']) {
+                    $(row).children('td').eq(0).html(`<button id="button-'${dataIndex+1}" class="show" style="border:none;background:none;margin-top:8px" class="button-primary" value="${dataIndex+1}"><i class="fas fa-plus-circle text-success" style="font-size:25px" ></i></button>`)
+                }
+
+                if (data['dates']) {
+                    $(row).children('td').eq(2).html(`<span id="dates-${dataIndex+1}"></span>`)
+                }
+
+                if (data['normal_hours']) {
+                    $(row).children('td').eq(3).html(`<span id="normal-${dataIndex+1}"></span>`)
+                }
+
+                if (data['overtime']) {
+                    $(row).children('td').eq(4).html(`<span id="overtime-${dataIndex+1}"></span>`)
+                }
+
+
+                if (data['total_hours_in']) {
+                    $(row).children('td').eq(5).html(`<span id="hours-${dataIndex+1}"></span>`)
+                }
+
+                if (data['salary_per_hour']) {
+                    $(row).children('td').eq(6).html(`<span id="salary_per_hour-${dataIndex+1}"></span>`)
+                }
+
+                if (data['salary']) {
+                    $(row).children('td').eq(7).html(`<span id="salary-${dataIndex+1}"></span>`)
+                }
+
+
+
+            }, "drawCallback": function (settings) {
 
                 /**
                  * Bejme qe te hapen child rows se tabeles kryesore
@@ -114,7 +157,8 @@ $(function () {
 
             var data = window.checkins
             var total_hours_in = 0;
-            var total_hours_out = 0;
+            var normal_hours = 0;
+            var overtime = 0;
             var total_count = 0;
             var i = 1;
 
@@ -122,7 +166,7 @@ $(function () {
                 if (Object.prototype.hasOwnProperty.call(data, key)) {
 
                     var val1 = data[key];
-
+                    var overtime = 0;
                     var id = key;
                     //shkojme edhe nje dimension tjeter me posht(kemi informacione te pergjithme
                     //per secilen date
@@ -132,15 +176,19 @@ $(function () {
                             var val2 = val1[key];
                             // console.log(val2);
                             if (val2['user_id'] === id) {
-                                total_hours_in += val2['total_hours_in'];
-                                total_hours_out += val2['total_hours_out'];
+                                total_hours_in += val2['hours_per_date'];
+                                overtime += val2['overtime'];
                                 total_count += 1
                             }
                         }
                     }
+                    normal_hours = total_hours_in - overtime;
                     //Marrim te dhenat e oreve totale dhe i shfaqim per cdo rrjesht
                     $(`#hours-${i}`).text(sec_to_hour(total_hours_in, 1) + " worked");
-                    $(`#hours-out-${i}`).text(sec_to_hour(total_hours_out, 1) + " off");
+                    $(`#normal-${i}`).text(sec_to_hour(normal_hours, 1));
+                    $(`#overtime-${i}`).text(sec_to_hour(overtime, 1));
+                    $(`#salary-${i}`).text("$ " + Math.round(((normal_hours * 10 + overtime * 20) / 3600)));
+                    $(`#salary_per_hour-${i}`).text((((normal_hours * 10 + overtime * 20)) / total_hours_in).toFixed(2));
 
                     var days;
                     if (total_count === 1) days = " day"; else days = " days"
@@ -149,7 +197,7 @@ $(function () {
 
                     //i bejme reset qe te llogaritet sakte per cdo user
                     total_hours_in = 0
-                    total_hours_out = 0;
+                    overtime = 0;
                     total_count = 0;
                     i++;
                 }
@@ -223,10 +271,13 @@ $(function () {
                         <tr>
                             <th></th>
                             <th>ID</th>
-                            <th class="text-right">Dates in</th>
-                            <th class="text-right">Check in total</th>
-                            <th class="text-right">Check out total</th>
+                            <th class="text-right">Date</th>
                             <th class="text-right">Check in count</th>
+                            <th class="text-right">Normal hours</th>
+                            <th class="text-right">Overtime</th>
+                            <th class="text-right">Total/Date</th>
+                            <th class="text-right">Salary/Hour</th>
+                            <th class="text-right">Salary</th>
                         </tr>
                     </thead>
                 </table>
@@ -249,18 +300,31 @@ $(function () {
             var table_data = Object.values(user_checkins).map(({
                                                                    user_id,
                                                                    check_in_date,
-                                                                   total_hours_in,
-                                                                   total_hours_out,
-                                                                   count
+                                                                   hours_per_date,
+                                                                   normal_hours,
+                                                                   overtime,
+                                                                   count,
+                                                                   pay_per_day,
+                                                                   pay_per_hour
                                                                }) => (
 
                 {
-                    user_id, check_in_date, total_hours_in, total_hours_out, count
+                    user_id, check_in_date, hours_per_date, normal_hours, overtime, count, pay_per_day, pay_per_hour
                 }))
             //konvertojme te dhenat e mesiperme nga seconda ne kohe
             table_data.forEach(function (result) {
-                result.total_hours_in = sec_to_hour(result.total_hours_in, 0)
-                result.total_hours_out = sec_to_hour(result.total_hours_out, 0)
+                var normal_hours = result.normal_hours;
+                var overtime = result.overtime;
+
+                result.normal_hours = sec_to_hour(result.hours_per_date - (result.overtime), 0)
+                result.hours_per_date = sec_to_hour(result.hours_per_date, 0)
+                result.overtime = sec_to_hour(result.overtime, 0)
+                result.pay_per_day = ((normal_hours * 10 + overtime * 20) / 3600).toFixed(2);
+                result.pay_per_hour = (result.pay_per_day / (normal_hours + overtime) * 3600).toFixed(2)
+
+                result.pay_per_day = "$ " + result.pay_per_day;
+                result.pay_per_hour = "$ " + result.pay_per_hour
+
             });
         } else {
             //send empty data if no data
@@ -288,11 +352,17 @@ $(function () {
             }, {
                 "className": 'dt-body-right', data: "check_in_date"
             }, {
-                "className": 'dt-body-right', data: "total_hours_in"
-            }, {
-                "className": 'dt-body-right', data: "total_hours_out"
-            }, {
                 "className": 'dt-body-right', data: "count"
+            }, {
+                "className": 'dt-body-right', data: "normal_hours"
+            }, {
+                "className": 'dt-body-right', data: "overtime"
+            }, {
+                "className": 'dt-body-right', data: "hours_per_date"
+            }, {
+                "className": 'dt-body-right', data: "pay_per_hour"
+            }, {
+                "className": 'dt-body-right', data: "pay_per_day"
             },],
             "columnDefs": [{
                 "targets": [1], "visible": false, "searchable": true, "width": "0%"
@@ -315,7 +385,7 @@ $(function () {
                 row.child.hide();
 
                 //Ndryshim ikone ne hide
-                tr.find('.fa-minus-circle').attr('class','fas fa-plus-circle fa-lg text-dark');
+                tr.find('.fa-minus-circle').attr('class', 'fas fa-plus-circle fa-lg text-dark');
 
             } else {
                 // Hapim rreshtin
@@ -331,7 +401,7 @@ $(function () {
                 initialize_table_3(parseInt(user_id));
 
                 //Ndryshim ikone ne show
-                tr.find('.fa-plus-circle').attr('class','fas fa-minus-circle fa-lg text-dark')
+                tr.find('.fa-plus-circle').attr('class', 'fas fa-minus-circle fa-lg text-dark')
             }
             //Stop the button from clicking twice somehow
             //because before this, it used to cause a doubleclick bug
@@ -353,6 +423,9 @@ $(function () {
         <th>Check in</th>
         <th>Check out</th>
         <th>Date out</th>
+        <th>Pay per Checkin</th>
+
+        
     </tr>
 </thead>
 </table>`
@@ -369,10 +442,16 @@ $(function () {
         //tani qe kemi ID dhe DATEN specifike, marrim te gjitha checkins
         //e asaj dite dhe i ruajme ne variabel
         var checkins = Object.values(tb2_val).map(({
-                                                       check_in_date, check_in_hour, check_out_hour, check_out_date
+                                                       check_in_date,
+                                                       check_in_hour,
+                                                       check_out_hour,
+                                                       check_out_date,
+                                                       pay_per_checkin
                                                    }) => ({
-            check_in_date, check_in_hour, check_out_hour, check_out_date
+            check_in_date, check_in_hour, check_out_hour, check_out_date, pay_per_checkin
         }))
+
+        // checkins.sort((a, b) => a.check_in_hour.localeCompare(b.check_in_hour));
 
         //Inicializojme tabelen e trete.
         $(`.tableclass3`).DataTable({
@@ -391,6 +470,8 @@ $(function () {
                 data: "check_out_hour"
             }, {
                 data: "check_out_date"
+            }, {
+                data: "pay_per_checkin"
             }]
         });
     }
