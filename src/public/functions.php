@@ -2,13 +2,15 @@
 include_once('../_config/constants.php');
 
 //Check if weekend
-function isWeekend($date) {
+function isWeekend($date)
+{
     return (date('N', strtotime($date)) >= 6);
 }
+
 //Upload image func
 function uploadImage($file, $old_image)
 {
-    if ($old_image==""){
+    if ($old_image == "") {
         return "default.jpg";
     }
 
@@ -52,11 +54,13 @@ function uploadImage($file, $old_image)
         return $old_image;
     }
 }
+
 //Convert time to seconds func
 function time_to_sec($time): int
 {
     return strtotime($time) - strtotime('TODAY');
 }
+
 //Datatables funct
 function empty_data($total_records, $error = "")
 {
@@ -64,6 +68,7 @@ function empty_data($total_records, $error = "")
     echo json_encode($response);
     exit;
 }
+
 //Password validation func
 function validate_password($pwd): bool
 {
