@@ -17,6 +17,7 @@ function uploadImage($file, $old_image)
     if (empty($file['name'])) {
         return $old_image;
     }
+    //
 
     $image = $file['name'];
     $image = "0" . uniqid() . "." . pathinfo($image, PATHINFO_EXTENSION);
