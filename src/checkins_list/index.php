@@ -33,8 +33,9 @@
                 <table id="checkins_list" class="display" style="width:100%">
                     <thead>
                     <tr>
+
+
                         <th>Show</th>
-                        <th>ID</th>
                         <th>Name</th>
                         <th>Dates</th>
                         <th>Normal hours</th>
@@ -46,8 +47,9 @@
                     </thead>
                     <tfoot>
                     <tr>
+
+                >
                         <th>Show</th>
-                        <th>ID</th>
                         <th>Name</th>
                         <th>Dates</th>
                         <th>Normal hours</th>

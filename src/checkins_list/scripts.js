@@ -1,11 +1,10 @@
 $(function () {
-   console.log('worked');
+   console.time()
 
-   //initilaize table only once instead of multiple times
-   //here we save the record
+   var elidon = 123123123123;
 
    //here we save the opened tbl2 rows in array
-   //so when user clicks
+   //so when user filters date, it auto opens them
    var openedTables = new Set();
 
    load_daterangepicker();
@@ -39,13 +38,10 @@ $(function () {
          type: 'post'
       },
       columns: [
-         {
-            data: 'user_id'
-         },
+
          {
             class: 'details-control1',
-            orderable: false,
-            data: null,
+            data: 'user_id',
             defaultContent:
                '<i class="fas fa-plus-circle fa-lg text-success" style="font-size:25px" aria-hidden="true"></i>'
          },
@@ -53,32 +49,31 @@ $(function () {
             data: 'first_name'
          },
          {
-            data: 'dates'
+            data: 'dates',
+            orderable: false,
          },
          {
-            data: 'normal_hours'
+            data: 'normal_hours',
+            orderable: false,
          },
          {
-            data: 'overtime'
+            data: 'overtime',
+            orderable: false,
          },
          {
-            data: 'total_hours_in'
+            data: 'total_hours_in',
+            orderable: false,
          },
          {
-            data: 'salary_per_hour'
+            data: 'salary_per_hour',
+            orderable: false,
          },
          {
-            data: 'salary'
+            data: 'salary',
+            orderable: false,
          }
       ],
-      columnDefs: [
-         {
-            targets: [0],
-            visible: false,
-            searchable: true,
-            width: '0%'
-         }
-      ],
+
       createdRow: function (row, data, dataIndex) {
          /**
           * EDIT ROW DATA
@@ -88,9 +83,9 @@ $(function () {
                .children('td')
                .eq(0)
                .html(
-                  `<button id="button-'${
+                  `<button id='button-${
                      dataIndex + 1
-                  }" class='show' style='border:none;background:none;margin-top:8px' class='button-primary' value='${
+                  }' class='show' style='border:none;background:none;margin-top:8px' class='button-primary' value='${
                      dataIndex + 1
                   }'><i class='fas fa-plus-circle text-success' style='font-size:25px' ></i></button>`
                );
@@ -179,26 +174,7 @@ $(function () {
             var row = tbl1.row(index);
             row.child(format_tbl2_html()).show();
             initialize_table_2(id[i]);
-
             //Ndalojme inicializimin e tabeles se trete nese tabela e dyte eshte b0sh
-            if (json[id[i]] === undefined) {
-               row.child.hide();
-               return;
-            }
-
-            var dates = Object.keys(json[id[i]]);
-            var j = 0;
-            tbl2
-               .rows()
-               .eq(0)
-               .each(function (index) {
-                  var row = tbl2.row(index);
-                  row.child(format_tbl3_html(row.data())).show();
-                  initialize_table_3(dates[j]);
-                  row.child.hide();
-                  j++;
-               });
-
             row.child.hide();
             i++;
             // ... do something with data(), or row.node(), etc
@@ -385,20 +361,20 @@ $(function () {
          );
          var y = new Date().getFullYear();
          const holidays = [
-            y + '-01-01',
-            y + '-03-14',
-            y + '-03-22',
-            y + '-04-17',
-            y + '-04-18',
-            y + '-05-01',
-            y + '-05-02',
-            y + '-05-13',
-            y + '-07-20',
-            y + '-09-05',
-            y + '-11-28',
-            y + '-11-29',
-            y + '-12-08',
-            y + '-05-25'
+            '01-01',
+            '03-14',
+            '03-22',
+            '04-17',
+            '04-18',
+            '05-01',
+            '05-02',
+            '05-13',
+            '07-20',
+            '09-05',
+            '11-28',
+            '11-29',
+            '12-08',
+            '05-25'
          ];
 
          //konvertojme te dhenat e mesiperme nga seconda ne kohe
@@ -406,10 +382,12 @@ $(function () {
             var normal_hours = result.normal_hours;
             var overtime = result.overtime;
 
-            if (holidays.indexOf(result.check_in_date) > -1) {
+            if (holidays.indexOf(result.check_in_date.slice(5)) > -1) {
+               console.log('holiday here');
                var k1 = 1.5;
                var k2 = 2;
             } else if (is_weekend(result.check_in_date)) {
+               console.log('weekend here');
                var k1 = 1.25;
                var k2 = 1.5;
             } else {
@@ -512,6 +490,12 @@ $(function () {
             var tr = $(this).closest('tr');
 
             var row = tbl2.row(tr);
+            var index = parseInt(row[0]);
+
+            var rows = tbl2.rows(index).data();
+            var user_id = rows[0]['user_id'];
+
+            var date = rows[0]['check_in_date'];
 
             if (row.child.isShown()) {
                // Nese rresht eshte i hapur, e mbyllim
@@ -522,9 +506,13 @@ $(function () {
                   'class',
                   'fas fa-plus-circle fa-lg text-dark'
                );
+
             } else {
+
                // initialize_table_3(user_id);
-               row.child.show();
+               row.child(format_tbl3_html()).show();
+               initialize_table_3(user_id, date);
+
                //Ndryshim ikone ne show
                tr.find('.fa-plus-circle').attr(
                   'class',
@@ -552,9 +540,9 @@ $(function () {
 </table>`;
    }
 
-   function initialize_table_3(date) {
+   function initialize_table_3(id, date) {
       //ruajme objektin qe permban te gjitha checkins e asaj dite specifike
-      var tb2_val = window.user_checkins[date]['checkins_per_day'];
+      var tb2_val = window.checkins[id][date]['checkins_per_day'];
 
       //tani qe kemi ID dhe DATEN specifike, marrim te gjitha checkins
       //e asaj dite dhe i ruajme ne variabel
@@ -618,13 +606,14 @@ $(function () {
       let hours = Math.floor(sec / 3600); // get hours
       let minutes = Math.floor((sec - hours * 3600) / 60); // get minutes
       // add 0 if value < 10; Example: 2 => 02
+      if (hours === 0) return '-';
+
       if (hours < 10) {
          hours = ' ' + hours;
       }
       if (minutes < 10) {
          minutes = '0' + minutes;
       }
-      if (hours === 0) return '-';
 
       if (i === 0) return hours + ' h ' + minutes + ' min';
       // Return is HH : MM : SS

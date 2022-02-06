@@ -54,7 +54,7 @@ function create_edit_user() {
     */
    data.append('file', files);
    data.append('action', 'update||delete');
-   if (window.edit == 1) {
+   if (window.edit === 1) {
       data.append('id', window.id);
    }
    data.append('first_name', first_name);
@@ -66,7 +66,6 @@ function create_edit_user() {
    data.append('password', password);
    data.append('confirm_password', confirm_password);
    data.append('role', role);
-
    /**
     * I dergojme backend-it te gjitha te dhenat
     */

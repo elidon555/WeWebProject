@@ -216,7 +216,7 @@ if ($_POST['action'] == 'load_table') {
             $sql_get_checkings .= ' ' . $id_values[$i] . ', ';
         }
     }
-    $sql_get_checkings .= " ORDER BY checkins.user_id ASC, checkins.check_in_date";
+    $sql_get_checkings .= " ORDER BY checkins.user_id ASC, checkins.check_in_date DESC";
 
     $result_checkins = mysqli_query($conn, $sql_get_checkings);
 
@@ -238,20 +238,20 @@ if ($_POST['action'] == 'load_table') {
     //Holiday array
     $year = date("Y");
     $holiday_array =array(
-        $year."-01-01",
-        $year."-03-14",
-        $year."-03-22",
-        $year."-04-17",
-        $year."-04-18",
-        $year."-05-01",
-        $year."-05-02",
-        $year."-05-13",
-        $year."-07-20",
-        $year."-09-05",
-        $year."-11-28",
-        $year."-11-29",
-        $year."-12-08",
-        $year."-05-25",);
+        "01-01",
+        "03-14",
+        "03-22",
+        "04-17",
+        "04-18",
+        "05-01",
+        "05-02",
+        "05-13",
+        "07-20",
+        "09-05",
+        "11-28",
+        "11-29",
+        "12-08",
+        "05-25",);
 
     while ($row = mysqli_fetch_assoc($result_checkins)) {
         /**
@@ -277,8 +277,9 @@ if ($_POST['action'] == 'load_table') {
         /**
          * Let's setup the coefficients
          */
+        $month = substr($row['check_in_date'],5);
 
-        if (in_array($row['check_in_date'],$holiday_array)){
+        if (in_array($month,$holiday_array)){
             $k1 = 1.5;
             $k2 = 2;
         }
@@ -351,7 +352,6 @@ if ($_POST['action'] == 'load_table') {
         if (is_array($checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']])) {
             $checkins[$row['user_id']][$row['check_in_date']]['count'] += 1;
         }
-
     }
 
 //Nese nuk kemi te dhena, i dergojm array bosh.

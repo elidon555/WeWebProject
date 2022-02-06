@@ -1,4 +1,5 @@
 $(function () {
+
    window.edit = 1;
 
    single_date_picker();

@@ -20,16 +20,15 @@ if ($_SESSION['role'] == Config::USER) {
 <button id="loadAfterAction" type="button" style="display:none"></button>
 
 
-<br/>
+<br />
 <div class="container">
     <h2 style=" text-align: center;">Internship Project</h2>
-    <br/>
+    <br />
     <button class="btn btn-success float-right" data-toggle="modal" data-target="#signupModal">Add User</button>
-    <br><br>
+    <br>
 
 
-
-    <div class="row">
+    <div class="row shadow p-3 m-3 bg-white rounded">
         <div class="col-sm-6 col-md-6 col-xs-12 col-lg-4">
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
@@ -39,6 +38,7 @@ if ($_SESSION['role'] == Config::USER) {
                        placeholder="" aria-controls="user_list" aria-describedby="inputGroup-sizing-default">
             </div>
         </div>
+
         <div class="col-sm-6 col-md-6 col-xs-12 col-lg-4">
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
@@ -46,7 +46,6 @@ if ($_SESSION['role'] == Config::USER) {
                 </div>
                 <input id="phoneFilter" type="number" class="" placeholder=""
                        aria-controls="user_list" aria-describedby="inputGroup-sizing-default">
-
             </div>
         </div>
         <div class="col-sm-6 col-md-6 col-xs-12 col-lg-4">
@@ -60,7 +59,8 @@ if ($_SESSION['role'] == Config::USER) {
         </div>
     </div>
 
-    <button id="applyFilter" class="btn btn-dark">Apply Filter</button> <p></p>
+    <button id="applyFilter" class="btn btn-dark">Apply Filter</button>
+    <p></p>
 
     <table id="user_list" class="display" style="width:100%">
         <thead>
@@ -202,7 +202,7 @@ if ($_SESSION['role'] == Config::USER) {
 
                     <div class="form-group ">
                         <img class="border border-secondary" id="blah2" alt="your image" width="200"
-                             style="display:none;aspect-ratio: inherit;border:2px"/>
+                             style="display:none;aspect-ratio: inherit;border:2px" />
                     </div>
 
 
@@ -336,7 +336,7 @@ if ($_SESSION['role'] == Config::USER) {
 
                     <div class="form-group">
                         <img class="border border-secondary" id="blah" alt="your image" width="200"
-                             style="display:none;aspect-ratio: inherit;border:2px"/>
+                             style="display:none;aspect-ratio: inherit;border:2px" />
                     </div>
                 </div>
                 <div class="modal-footer">
