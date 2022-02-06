@@ -46,23 +46,23 @@ window.onerror=silentErrorHandler;
             <ul class="navbar-nav ml-auto">
 
                 <li class="nav-item pl-1">
-                    <a class="nav-link" href="http://localhost/WeWebProject/user_list/index.php"><i
+                    <a class="nav-link" href="../user_list"><i
                                 class="fas fa-list-ul fa-fw mr-1"></i>User List</a>
                 </li>
 
                 <li class="nav-item pl-1">
-                    <a class="nav-link" href="http://localhost/WeWebProject/checkins_list/index.php"><i
+                    <a class="nav-link" href="../checkins_list"><i
                                 class="fas fa-list-ul fa-fw mr-1"></i>User Checkins</a>
                 </li>
 
                 <li class="nav-item pl-1">
-                    <a class="nav-link" href="http://localhost/WeWebProject/profile/index.php"><i
+                    <a class="nav-link" href="../profile/index.php"><i
                                 class="fas fa-list-ul fa-fw mr-1"></i>Profile</a>
                 </li>
 
 
                 <li class="nav-item pl-1">
-                    <a class="nav-link" href="http://localhost/WeWebProject/log-out.php"><i
+                    <a class="nav-link" href="../log-out.php"><i
                                 class="fas fa-sign-out-alt"></i> Log out</a>
                 </li>
 

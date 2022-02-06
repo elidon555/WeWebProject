@@ -1,6 +1,6 @@
 <?php
-include('C:\xampp\htdocs\WeWebProject\_partials\header.php');
-include('C:\xampp\htdocs\WeWebProject\_partials\login-check.php');
+include('../_partials/header.php');
+
 
 /**
  * Nese nuk je Admin te con te profili pasi ske te drejte te shohesh listen e userave
