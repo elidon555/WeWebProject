@@ -4,147 +4,196 @@ $(function () {
 
     //initilaize table only once instead of multiple times
     //here we save the record
-    var formatTableOnce = [];
 
     //here we save the opened tbl2 rows in array
     //so when user clicks
     var openedTables = new Set();
 
-    load_main_table();
+
     load_daterangepicker();
     load_add_checkins();
 
-    function load_main_table() {
 
-        /**
-         * Bejme inicializimin e tabeles kryesore
-         */
-        var tbl1 = $('#checkins_list').DataTable({
-            "processing": true, "serverSide": true, "ordering": true, pageLength: 10, lengthMenu: [5, 10, 20], "ajax": {
-                "data": function (data) {
-                    data.action = 'load_table'
-                    //Ne momentin qe bejme load tabelen, backendi merr diten e sotme minus 30 dite
-                    if (window.allowDateFilter === 1) {
-                        /**
-                         * Mbasi behet draw tabela njehere, tani mund te aplikojme filtrin e dates
-                         */
-                        var date_s = $('#date');
-                        var startDate = date_s.data('daterangepicker').startDate.format("YYYY-MM-DD");
-                        var endDate = date_s.data('daterangepicker').endDate.format("YYYY-MM-DD");
-                        data.startDate = startDate;
-                        data.endDate = endDate;
-                    }
-                }, 'url': 'ajax.php', 'type': 'post'
-            }, "columns": [{
-                "data": "user_id",
-            }, {
-                "class": "details-control1",
-                "orderable": false,
-                "data": null,
-                "defaultContent": '<i class="fas fa-plus-circle fa-lg text-success" style="font-size:25px" aria-hidden="true"></i>'
-            }, {
-                "data": "first_name"
-            }, {
-                "data": "dates"
-            }, {
-                "data": "normal_hours"
-            }, {
-                "data": "overtime"
-            }, {
-                "data": "total_hours_in"
-            }, {
-                "data": "salary_per_hour"
-            }, {
-                "data": "salary"
-            }], "columnDefs": [{
-                "targets": [0], "visible": false, "searchable": true, "width": "0%"
-            }], "createdRow": function (row, data, dataIndex) {
-                /**
-                 * EDIT ROW DATA
-                 */
-                if (data['show']) {
-                    $(row).children('td').eq(0).html(`<button id="button-'${dataIndex + 1}" class="show" style="border:none;background:none;margin-top:8px" class="button-primary" value="${dataIndex + 1}"><i class="fas fa-plus-circle text-success" style="font-size:25px" ></i></button>`)
-                }
+    /**
+     * Bejme inicializimin e tabeles kryesore
+     */
+    var tbl1 = $('#checkins_list').DataTable({
+        "processing": true, "serverSide": true, "ordering": true, pageLength: 10, lengthMenu: [5, 10, 20], "ajax": {
+            "data": function (data) {
+                data.action = 'load_table'
+                //Ne momentin qe bejme load tabelen, backendi merr diten e sotme minus 30 dite
 
-                if (data['dates']) {
-                    $(row).children('td').eq(2).html(`<span id="dates-${dataIndex + 1}"></span>`)
-                }
+                var date_s = $('#date');
+                var startDate = date_s.data('daterangepicker').startDate.format("YYYY-MM-DD");
+                var endDate = date_s.data('daterangepicker').endDate.format("YYYY-MM-DD");
+                data.startDate = startDate;
+                data.endDate = endDate;
 
-                if (data['normal_hours']) {
-                    $(row).children('td').eq(3).html(`<span id="normal-${dataIndex + 1}"></span>`)
-                }
-
-                if (data['overtime']) {
-                    $(row).children('td').eq(4).html(`<span id="overtime-${dataIndex + 1}"></span>`)
-                }
-
-                if (data['total_hours_in']) {
-                    $(row).children('td').eq(5).html(`<span id="hours-${dataIndex + 1}"></span>`)
-                }
-
-                if (data['salary_per_hour']) {
-                    $(row).children('td').eq(6).html(`<span id="salary_per_hour-${dataIndex + 1}"></span>`)
-                }
-
-                if (data['salary']) {
-                    $(row).children('td').eq(7).html(`<span id="salary-${dataIndex + 1}"></span>`)
-                }
-
-            }, "drawCallback": function (settings) {
-
-                /**
-                 * Bejme qe te hapen child rows se tabeles kryesore
-                 * vetem ne momentin qe useri ben filter daten
-                 */
-                window.allowDateFilter = 1;
-                window.checkins = settings.json['checkinsData'];
-
-                setTimeout(function () {
-                    for (let item of openedTables.values()) $('.details-control1').eq(item).trigger('click')
-
-                }, 200);
-
-                //bejme empty array ne menyre qe kur te bejme data reload
-                // te behet riinicializimi i tabeles perseri
-                formatTableOnce = [];
-            }, "initComplete": function (settings, json) {
-
-                /**
-                 * Search delay
-                 */
-                var search_s = $("div.dataTables_filter input");
-                search_s.unbind();
-
-                search_s.on("keyup", delay(function (event) {
-
-                    tbl1.search(this.value).draw()
-
-                }, 700));
-                /**
-                 * End of search delay
-                 */
+            }, 'url': 'ajax.php', 'type': 'post'
+        }, "columns": [{
+            "data": "user_id",
+        }, {
+            "class": "details-control1",
+            "orderable": false,
+            "data": null,
+            "defaultContent": '<i class="fas fa-plus-circle fa-lg text-success" style="font-size:25px" aria-hidden="true"></i>'
+        }, {
+            "data": "first_name"
+        }, {
+            "data": "dates"
+        }, {
+            "data": "normal_hours"
+        }, {
+            "data": "overtime"
+        }, {
+            "data": "total_hours_in"
+        }, {
+            "data": "salary_per_hour"
+        }, {
+            "data": "salary"
+        }], "columnDefs": [{
+            "targets": [0], "visible": false, "searchable": true, "width": "0%"
+        }], "createdRow": function (row, data, dataIndex) {
+            /**
+             * EDIT ROW DATA
+             */
+            if (data['show']) {
+                $(row).children('td').eq(0).html(`<button id="button-'${dataIndex + 1}" class="show" style="border:none;background:none;margin-top:8px" class="button-primary" value="${dataIndex + 1}"><i class="fas fa-plus-circle text-success" style="font-size:25px" ></i></button>`)
             }
-        })
+
+            if (data['dates']) {
+                $(row).children('td').eq(2).html(`<span id="dates-${dataIndex + 1}"></span>`)
+            }
+
+            if (data['normal_hours']) {
+                $(row).children('td').eq(3).html(`<span id="normal-${dataIndex + 1}"></span>`)
+            }
+
+            if (data['overtime']) {
+                $(row).children('td').eq(4).html(`<span id="overtime-${dataIndex + 1}"></span>`)
+            }
+
+            if (data['total_hours_in']) {
+                $(row).children('td').eq(5).html(`<span id="hours-${dataIndex + 1}"></span>`)
+            }
+
+            if (data['salary_per_hour']) {
+                $(row).children('td').eq(6).html(`<span id="salary_per_hour-${dataIndex + 1}"></span>`)
+            }
+
+            if (data['salary']) {
+                $(row).children('td').eq(7).html(`<span id="salary-${dataIndex + 1}"></span>`)
+            }
+
+        }, "drawCallback": function (settings) {
+            window.checkins = settings.json['checkinsData']
+            load_inner_tables(checkins)
+
+            setTimeout(function () {
+                for (let item of openedTables.values()) $('.details-control1').eq(item).trigger('click')
+
+            }, 200);
 
 
-        /**
-         * Clears opened tables array which auto showed all previously opened tables
-         */
+        }, "initComplete": function (settings, json) {
 
-        $('input[type="search"]').on('keydown', function () {
-            openedTables.clear();
-        })
+            /**
+             * Search delay
+             */
+            var search_s = $("div.dataTables_filter input");
+            search_s.unbind();
 
-        tbl1.on('page.dt', function () {
-            openedTables.clear();
-        })
+            search_s.on("keyup", delay(function (event) {
+                openedTables.clear();
+                tbl1.search(this.value).draw()
 
-        $('#applyFilter').on('click', function () {
-            tbl1.draw();
-        })
-        main_tbl_details_control(tbl1)
-        load_checkins(tbl1)
+            }, 700));
+            /**
+             * End of search delay
+             */
+        }
+    })
+
+    function load_inner_tables(json) {
+
+
+        id = Object.keys(json);
+        var i = 0;
+        tbl1.rows().eq(0).each(function (index) {
+
+            var row = tbl1.row(index);
+            row.child(format_tbl2_html()).show()
+            initialize_table_2(id[i])
+
+            //Ndalojme inicializimin e tabeles se trete nese tabela e dyte eshte b0sh
+            if (json[id[i]] === undefined) {
+                row.child.hide()
+                return
+            }
+
+            var dates = Object.keys(json[id[i]])
+            var j = 0
+            tbl2.rows().eq(0).each(function (index) {
+
+                var row = tbl2.row(index);
+                row.child(format_tbl3_html(row.data())).show();
+                initialize_table_3(id[i], dates[j]);
+                row.child.hide()
+                j++;
+            });
+
+            row.child.hide()
+            i++
+            // ... do something with data(), or row.node(), etc
+        });
     }
+
+
+    /**
+     * Clears opened tables array which auto showed all previously opened tables
+     */
+
+    tbl1.on('search', function (event) {
+
+        console.log('el')
+        // load_inner_tables(checkins)
+        // openedTables.clear();
+        // console.log('execyted')
+        return false;
+    })
+
+    $('#applyFilter').on('click', function () {
+        tbl1.draw();
+    })
+
+    $('#checkins_list tbody').on('click', 'tr td.details-control1', function (event) {
+        var tr = $(this).closest('tr');
+        var row = tbl1.row(tr);
+        var index = parseInt(row[0]) + 1;
+
+        if (row.child.isShown()) {
+            tr.removeClass('details');
+            row.child.hide();
+            //Ndryshojme ikonen kur tabela mbyllet
+            tr.find('.fas').attr('class', 'fas fa-plus-circle fa-lg text-success')
+            openedTables.delete(index + 1);
+
+        } else {
+            openedTables.add(index + 1);
+
+            tr.addClass('details');
+
+            row.child.show();
+
+            tr.find('.fas').attr('class', 'fas fa-minus-circle fa-lg text-danger')
+
+        }
+
+    });
+
+
+    load_checkins(tbl1)
+
 
     function load_checkins(tbl1) {
         tbl1.on('draw', function () {
@@ -207,7 +256,7 @@ $(function () {
                     $(`#normal-${i}`).text(sec_to_hour(normal_hours, 1));
                     $(`#overtime-${i}`).text(sec_to_hour(overtime, 1));
                     $(`#salary-${i}`).text("$ " + Math.round((salary)));
-                    $(`#salary_per_hour-${i}`).text("$ " +((salary/total_hours_in*3600)).toFixed(2));
+                    $(`#salary_per_hour-${i}`).text("$ " + ((salary / total_hours_in * 3600)).toFixed(2));
 
                     var days;
                     if (total_count === 1) days = " day"; else days = " days"
@@ -224,65 +273,13 @@ $(function () {
         });
     }
 
-    function main_tbl_details_control(tbl1) {
-        $('#checkins_list tbody').on('click', 'tr td.details-control1', function (event) {
-            var tr = $(this).closest('tr');
-            var row = tbl1.row(tr);
-            var index = parseInt(row[0]) + 1;
 
-            if (row.child.isShown()) {
-                tr.removeClass('details');
-                row.child.hide();
-                //Ndryshojme ikonen kur tabela mbyllet
-                tr.find('.fas').attr('class', 'fas fa-plus-circle fa-lg text-success')
-                openedTables.delete(index + 1);
-
-            } else {
-                openedTables.add(index + 1);
-                //Ndalon ri-inicializimin e tabeles kur klikojme
-                // show details tek tabela dytesore
-                if (isNaN(index)) return;
-
-                //data['key'] = vlere
-                var data = tbl1.row($(this).parents('tr')).data();
-                var row_user_id = data['user_id'];
-                tr.addClass('details');
-
-                /**
-                 * Inicializimi i tabeles, optimizim
-                 * I ruajme ne array listen e tabelave te inicializuara
-                 */
-                if (!formatTableOnce.includes(row_user_id)) {
-
-                    //E bejme vetem nese nuk eshte inicializuar me pare
-                    row.child(format_tbl2_html(index,row_user_id)).show();
-                    initialize_table_2(row_user_id)
-                    formatTableOnce.push(row_user_id);
-
-                } else {
-                    //Nese eshte inicializuar, thjesht e bejme show
-                    row.child.show();
-                }
-                // Add to the 'open' array
-
-                //Ndryshojme ikonen kur tabela hapet
-
-                tr.find('.fas').attr('class', 'fas fa-minus-circle fa-lg text-danger')
-
-                //Put table index on this array so when we search
-                //another date,  we keep it opened
-            }
-            event.stopImmediatePropagation()
-        });
-    }
-
-
-    function format_tbl2_html(row) {
+    function format_tbl2_html() {
         /**
          * Bejme draw tabelen e meposhte
          */
         return `
-                <table id="table${row}" class="innerTable tableclass2 display" style="width:100%">
+                <table class="innerTable tableclass2 display" style="width:100%">
                    <thead>
                         <tr>
                             <th></th>
@@ -305,6 +302,7 @@ $(function () {
      * @param id
      */
     function initialize_table_2(id) {
+
 
         //Ruajme te dhena me id-ne e userit si key
         var user_checkins = window.checkins[id];
@@ -365,7 +363,7 @@ $(function () {
 
 
         //inicializojme tabelen dytesore
-        var tbl2 = $(`.tableclass2`).DataTable({
+        window.tbl2 = $(`.tableclass2`).DataTable({
             pageLength: 5,
             lengthMenu: [5, 20, 50, 75, 100],
             retrieve: true,
@@ -399,7 +397,9 @@ $(function () {
             "columnDefs": [{
                 "targets": [1], "visible": false, "searchable": true, "width": "0%"
             }]
+
         });
+
         second_table_details_control(tbl2)
     }
 
@@ -409,12 +409,8 @@ $(function () {
         $('.tableclass2 tbody').on('click', 'td.details-control2', function (event) {
 
             var tr = $(this).closest('tr');
-            console.log($(this[0]));
-            console.log(tr[0]);
+
             var row = tbl2.row(tr);
-
-
-            console.log(row[0]);
 
             if (row.child.isShown()) {
                 // Nese rresht eshte i hapur, e mbyllim
@@ -424,44 +420,17 @@ $(function () {
                 tr.find('.fa-minus-circle').attr('class', 'fas fa-plus-circle fa-lg text-dark');
 
             } else {
-                // Hapim rreshtin
-
-                //Ruajme te gjitha te dhenat e rrjeshtit ne kete variabel
-                var data = tbl2.row($(this).parents('tr')).data();
-
-                //ruajme id-ne e userit ne variable
-                var user_id = data['user_id'];
-
-
-                //formatojme
-                row.child(format_tbl3_html(row.data())).show();
-                initialize_table_3(parseInt(user_id));
-
+                // initialize_table_3(user_id);
+                row.child.show()
                 //Ndryshim ikone ne show
                 tr.find('.fa-plus-circle').attr('class', 'fas fa-minus-circle fa-lg text-dark')
             }
-            //Stop the button from clicking twice somehow
-            //because before this, it used to cause a doubleclick bug
-            //when switching from one user to another user id.
-            event.stopImmediatePropagation()
+
         });
-        /**
-         * SAVIOUR
-         */
-        // tbl2.rows().eq(0).each( function ( index ) {
-        //     var row = tbl2.row( index );
-        //     console.log(row);
-        //     row.child("asdasdasdsd")
-        //     var data = row.data();
-        //     console.log(data);
-        //     // ... do something with data(), or row.node(), etc
-        // } );
+
     }
 
-    function format_tbl3_html(d) {
-
-        //Ruajme ne variabel globale daten
-        window.date = d.check_in_date
+    function format_tbl3_html() {
 
         //Shtojme formatimin e tabeles
         return `<table class="innerTable display tableclass3" style="width:100%">
@@ -479,10 +448,8 @@ $(function () {
 </table>`
     }
 
-    function initialize_table_3(id) {
+    function initialize_table_3(id, date) {
 
-
-        var date = window.date;
 
         //ruajme objektin qe permban te gjitha checkins e asaj dite specifike
         var tb2_val = window.checkins[id][date]['checkins_per_day'];
@@ -511,13 +478,13 @@ $(function () {
             info: false,
             data: checkins,
             "createdRow": function (row, data, dataIndex) {
-            /**
-             * EDIT ROW DATA
-             */
-            if (data['pay_per_checkin']) {
-                $(row).children('td').eq(4).html(`$ ${data['pay_per_checkin']}`)
-            }
-        },
+                /**
+                 * EDIT ROW DATA
+                 */
+                if (data['pay_per_checkin']) {
+                    $(row).children('td').eq(4).html(`$ ${data['pay_per_checkin']}`)
+                }
+            },
             columns: [{
                 data: "check_in_date"
             }, {
@@ -543,7 +510,7 @@ $(function () {
         if (minutes < 10) {
             minutes = "0" + minutes;
         }
-        if (hours==0) return "-";
+        if (hours === 0) return "-";
 
         if (i === 0) return hours + ' h ' + minutes + ' min'; // Return is HH : MM : SS
 
