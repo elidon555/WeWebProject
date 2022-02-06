@@ -148,15 +148,21 @@ if ($_POST['action'] == 'load_table') {
         empty_data($totalRecords, $error);
     }
 
-    $buttonval = 1;
+
+    //vlerat e id-se te cilat na duhen per checkin
     $id_values = array();
+
+    //array ku do ruajme te dhenat qe ja cojme frontend-it
     $data = array();
+
     while ($row = mysqli_fetch_assoc($result_data)) {
+        //krijojme variablen temp qe ti bejme push te dhenat ne array
         $temp = array();
 
+        //Marrim te dhenat nga SQL-dhe I bejme push ne array
         $temp['user_id'] = $row['user_id'];
         $temp['show'] = " ";
-        $temp['name'] = $row["first_name"] . " " . $row["last_name"];
+        $temp['first_name'] = $row["first_name"] . " " . $row["last_name"];
         $temp['total_hours_in'] = " ";
         $temp['normal_hours'] = " ";
         $temp['overtime'] = " ";
@@ -166,7 +172,6 @@ if ($_POST['action'] == 'load_table') {
 
         $data[] = $temp;
         $id_values[] = $row['user_id'];
-        $buttonval++;
 
     }
 
@@ -179,7 +184,6 @@ if ($_POST['action'] == 'load_table') {
         $startDate = mysqli_real_escape_string($conn, $_POST['startDate']);
         $endDate = mysqli_real_escape_string($conn, $_POST['endDate']);
     }
-
 
     $sql_get_checkings = 'SELECT
     checkins.id,
@@ -214,7 +218,6 @@ if ($_POST['action'] == 'load_table') {
     }
     $sql_get_checkings .= " ORDER BY checkins.user_id ASC, checkins.check_in_date";
 
-
     $result_checkins = mysqli_query($conn, $sql_get_checkings);
 
     if (!$result_checkins) {
@@ -228,36 +231,76 @@ if ($_POST['action'] == 'load_table') {
     //Deklarojme variablen e cila tregon orarin normal ne sekonda
     $time = time_to_sec('09:00:00');
 
-
-
-    $price = array();
+    //Variabla ku do ruajme oret totale te punes per cdo checkin
+    $total_hours = 0;
+    //Variabla ku do ruajme totalin e meparshem
+    $prev_total = 0;
+    //Holiday array
+    $year = date("Y");
+    $holiday_array =array(
+        $year."-01-01",
+        $year."-03-14",
+        $year."-03-22",
+        $year."-04-17",
+        $year."-04-18",
+        $year."-05-01",
+        $year."-05-02",
+        $year."-05-13",
+        $year."-07-20",
+        $year."-09-05",
+        $year."-11-28",
+        $year."-11-29",
+        $year."-12-08",
+        $year."-05-25",);
 
     while ($row = mysqli_fetch_assoc($result_checkins)) {
-
-        $date = $row['check_in_date'];
-
-        $id = $row['user_id'];
-//        echo $date." ".$id." ||||";
+        /**
+         * If id or date changes,prevTotal and total resets back to 0
+         */
+        $date_new= $row['check_in_date'];
+        $id_new = $row['user_id'];
+//        echo $date." ".$id_new." ||||";
         if (isset($date_old)) {
-            /**
-             * If id or date changes,prevTotal
-             */
-            if ($date_old !== $date || $id_old !== $id) {
-                //
+            // If id or date changes,prevTotal and total resets back to 0
+            if ($date_old !== $date_new|| $id_old !== $id_new) {
+
                 $prev_total = 0;
                 $total_hours = 0;
-
             }
         }
         $date_old = $row['check_in_date'];
         $id_old = $row['user_id'];
+        /**
+         * End of total hour reset.
+         */
 
+        /**
+         * Let's setup the coefficients
+         */
+
+        if (in_array($row['check_in_date'],$holiday_array)){
+            $k1 = 1.5;
+            $k2 = 2;
+        }
+
+        else if (isWeekend($row['check_in_date'])){
+            $k1 = 1.25;
+            $k2 = 1.5;
+        } else {
+            $k1 = 1;
+            $k2 = 1.25;
+        }
+
+        /**
+         * Llogarisimin differencen per cdocheckin dhe nese eshte negative, I shtojme 24 ore se ashtu I bie.
+         */
         $checkins_difference = time_to_sec($row['check_out_hour']) - time_to_sec($row['check_in_hour']);
 
         if ($checkins_difference < 0) {
             $checkins_difference += time_to_sec("24:00:00");
         }
 
+        //Incrementojme totalin me cdo checkin brenda 1 dite
         $total_hours += $checkins_difference;
 
         //3d - checkins per date // shtojme te dhenat baze te checkings
@@ -265,65 +308,50 @@ if ($_POST['action'] == 'load_table') {
         $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['check_in_hour'] = $row['check_in_hour'];
         $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['check_out_hour'] = $row['check_out_hour'];
         $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['check_out_date'] = $row['check_out_date'];
-
-
-//
-        if ($total_hours < $time) {
-            $pay_per_checkin = ($total_hours - $prev_total) * 10 / 3600;
-            //This will be executed only once per date
-        } else if ($total_hours > $time && $prev_total < $time) {
-            $pay_per_checkin = ($total_hours - $time) * 20 / 3600 + ($time - $prev_total) * 10 / 3600;
-
-        } else if ($total_hours > $time && $prev_total > $time) {
-            $pay_per_checkin = ($total_hours - $prev_total) * 20 / 3600;
-
-        }
-
-        $prev_total = $total_hours;
-
-        $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['pay_per_checkin'] = $pay_per_checkin;
-
-
-        $daily_difference = time_to_sec($row['check_out_hour']) - time_to_sec($row['check_in_hour']);
-
-        if ($daily_difference < 0) {
-            $daily_difference += time_to_sec("24:00:00");
-        }
-
-        $checkins[$row['user_id']][$row['check_in_date']]['pay_per_hour'] = "";
-
-
-        /**
-         * //2d single date details // llogarisimin oret totale te checkinsave per dite
-         */
-
-        //ne key unik check_in_date ruajme /checkin date / oret totale per date in dhe out / id-ne e userit
+        //shtojme user id se na nevojitet
+        $checkins[$row['user_id']][$row['check_in_date']]['user_id'] = $row['user_id'];
+        //ruajme daten
         $checkins[$row['user_id']][$row['check_in_date']]['check_in_date'] = $row['check_in_date'];
 
+
+        //If total is less than 9 hours, calculate as 10$ per hour
+        if ($total_hours < $time) {
+            $pay_per_checkin = ($checkins_difference) * 10*$k1 / 3600;
+            //This will be executed only once per date if total exceeds 9 hours
+            //Because on the next iteration, $prev total will be bigger than 9:00
+        } else if ($total_hours > $time && $prev_total < $time) {
+            $pay_per_checkin = ($total_hours - $time) * 10 *$k2 / 3600 + ($time - $prev_total) * 10*$k1 / 3600;
+
+            //If total  && previous total are bigger than 9:00 , just add the difference *k;
+        } else if ($total_hours > $time && $prev_total > $time) {
+            $pay_per_checkin = ($checkins_difference) * 10 *$k2 / 3600;
+
+        }
+
+        //Ruajme totalin per iterimin e ardhshem
+        $prev_total = $total_hours;
+
+        //Ruajme ne array, pagen per cdo checkin ne baze te kushteve te mesiperm
+        $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['pay_per_checkin'] = round($pay_per_checkin,2);
         //shtojme diferencen ne ore checkout-checkin per cdo checkings qe kemi brenda nje date
-        $checkins[$row['user_id']][$row['check_in_date']]['hours_per_date'] += $daily_difference;
-
-        $overtime = $time - $checkins[$row['user_id']][$row['check_in_date']]['hours_per_date'];
-
-        if ($overtime < 0) {
-            $checkins[$row['user_id']][$row['check_in_date']]['overtime'] = -($overtime);
+        $checkins[$row['user_id']][$row['check_in_date']]['hours_per_date'] += $checkins_difference;
+        //Llogarisimin sa ka punuar overtime
+        $overtime = $checkins[$row['user_id']][$row['check_in_date']]['hours_per_date'] - $time;
+        /**
+         * Llogarisim sa ore ka punuar overtime brenda 1 dite
+         */
+        if ($overtime > 0) {
+            $checkins[$row['user_id']][$row['check_in_date']]['overtime'] = $overtime;
             $checkins[$row['user_id']][$row['check_in_date']]['normal_hours'] = $time;
         } else {
             $checkins[$row['user_id']][$row['check_in_date']]['overtime'] = 0;
-            $checkins[$row['user_id']][$row['check_in_date']]['normal_hours'] += $daily_difference;
+            $checkins[$row['user_id']][$row['check_in_date']]['normal_hours'] += $checkins_difference;
         }
-
-
-        //ketu nuk iterojme por shtojme veten diferencen finale, pra 24 ore minus oret qe ka punuar ne total ate dite.
-
-
-        //shtojme user id se na nevojitet
-        $checkins[$row['user_id']][$row['check_in_date']]['user_id'] = $row['user_id'];
-
         //store how many checkings we got per day, by counting number of arrays inside checkins_per_day
         if (is_array($checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']])) {
             $checkins[$row['user_id']][$row['check_in_date']]['count'] += 1;
         }
+
     }
 
 //Nese nuk kemi te dhena, i dergojm array bosh.
@@ -331,6 +359,7 @@ if ($_POST['action'] == 'load_table') {
         $table_data = [];
     }
 
+    //Ja dergojme response-in backendit
     $response = array("draw" => intval($draw), "iTotalRecords" => $totalRecords, "iTotalDisplayRecords" => $totalRecordwithFilter, "aaData" => $data, "checkinsData" => $checkins);
     echo json_encode($response);
     exit;

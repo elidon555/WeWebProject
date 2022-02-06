@@ -1,6 +1,10 @@
 <?php
 include_once('../_config/constants.php');
 
+//Check if weekend
+function isWeekend($date) {
+    return (date('N', strtotime($date)) >= 6);
+}
 //Upload image func
 function uploadImage($file, $old_image)
 {
@@ -302,7 +306,6 @@ if ($_POST['action'] == 'update||delete') {
     }
 
     $resAddRole = mysqli_query($conn, $sqlAddRole);
-
 
     echo json_encode(array("status" => 200, "message" => "Success! " . __LINE__));
     exit();

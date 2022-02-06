@@ -7,6 +7,30 @@ function isEmpty(value) {
     );
 }
 
+function isObject(val3) {
+    return val3 instanceof Object;
+}
+
+function delay(callback, ms) {
+    var timer = 0;
+    return function() {
+        var context = this, args = arguments;
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+            callback.apply(context, args);
+        }, ms || 0);
+    };
+}
+
+function is_weekend(date1){
+    var dt = new Date(date1);
+
+    if(dt.getDay() == 6 || dt.getDay() == 0)
+    {
+        return "weekend";
+    }
+}
+
 const letters_pattern = /^[a-zA-Z ]+$/;
 const phone_pattern = /^[0-9]*$/
 const email_pattern = /^\w+([-+.'][^\s]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;

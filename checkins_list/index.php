@@ -24,6 +24,8 @@
                         </div>
                         <input style="float:right" class="form-control" id="date" type="text" name="date" placeholder=""
                                value="">
+                        <button id="applyFilter" class="btn btn-dark">Apply Filter</button>
+                        <p></p>
                     </div>
 
                     <br>
@@ -58,12 +60,9 @@
                 </table>
             </div>
         </div>
-
     </div>
 
 
-    <div id="safe" style="display:none"></div>
-    <span id="no_results" style="display:none">No results!</span>
 
     <div class="modal fade" id="signupModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
