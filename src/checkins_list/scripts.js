@@ -1,5 +1,5 @@
 $(function () {
-   console.time()
+   console.time();
 
    var elidon = 123123123123;
 
@@ -38,7 +38,6 @@ $(function () {
          type: 'post'
       },
       columns: [
-
          {
             class: 'details-control1',
             data: 'user_id',
@@ -50,27 +49,27 @@ $(function () {
          },
          {
             data: 'dates',
-            orderable: false,
+            orderable: false
          },
          {
             data: 'normal_hours',
-            orderable: false,
+            orderable: false
          },
          {
             data: 'overtime',
-            orderable: false,
+            orderable: false
          },
          {
             data: 'total_hours_in',
-            orderable: false,
+            orderable: false
          },
          {
             data: 'salary_per_hour',
-            orderable: false,
+            orderable: false
          },
          {
             data: 'salary',
-            orderable: false,
+            orderable: false
          }
       ],
 
@@ -506,9 +505,7 @@ $(function () {
                   'class',
                   'fas fa-plus-circle fa-lg text-dark'
                );
-
             } else {
-
                // initialize_table_3(user_id);
                row.child(format_tbl3_html()).show();
                initialize_table_3(user_id, date);

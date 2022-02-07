@@ -237,7 +237,7 @@ if ($_POST['action'] == 'load_table') {
     $prev_total = 0;
     //Holiday array
     $year = date("Y");
-    $holiday_array =array(
+    $holiday_array = array(
         "01-01",
         "03-14",
         "03-22",
@@ -257,12 +257,12 @@ if ($_POST['action'] == 'load_table') {
         /**
          * If id or date changes,prevTotal and total resets back to 0
          */
-        $date_new= $row['check_in_date'];
+        $date_new = $row['check_in_date'];
         $id_new = $row['user_id'];
 //        echo $date." ".$id_new." ||||";
         if (isset($date_old)) {
             // If id or date changes,prevTotal and total resets back to 0
-            if ($date_old !== $date_new|| $id_old !== $id_new) {
+            if ($date_old !== $date_new || $id_old !== $id_new) {
 
                 $prev_total = 0;
                 $total_hours = 0;
@@ -277,14 +277,12 @@ if ($_POST['action'] == 'load_table') {
         /**
          * Let's setup the coefficients
          */
-        $month = substr($row['check_in_date'],5);
+        $month = substr($row['check_in_date'], 5);
 
-        if (in_array($month,$holiday_array)){
+        if (in_array($month, $holiday_array)) {
             $k1 = 1.5;
             $k2 = 2;
-        }
-
-        else if (isWeekend($row['check_in_date'])){
+        } else if (isWeekend($row['check_in_date'])) {
             $k1 = 1.25;
             $k2 = 1.5;
         } else {
@@ -317,15 +315,15 @@ if ($_POST['action'] == 'load_table') {
 
         //If total is less than 9 hours, calculate as 10$ per hour
         if ($total_hours < $time) {
-            $pay_per_checkin = ($checkins_difference) * 10*$k1 / 3600;
+            $pay_per_checkin = ($checkins_difference) * 10 * $k1 / 3600;
             //This will be executed only once per date if total exceeds 9 hours
             //Because on the next iteration, $prev total will be bigger than 9:00
         } else if ($total_hours > $time && $prev_total < $time) {
-            $pay_per_checkin = ($total_hours - $time) * 10 *$k2 / 3600 + ($time - $prev_total) * 10*$k1 / 3600;
+            $pay_per_checkin = ($total_hours - $time) * 10 * $k2 / 3600 + ($time - $prev_total) * 10 * $k1 / 3600;
 
             //If total  && previous total are bigger than 9:00 , just add the difference *k;
         } else if ($total_hours > $time && $prev_total > $time) {
-            $pay_per_checkin = ($checkins_difference) * 10 *$k2 / 3600;
+            $pay_per_checkin = ($checkins_difference) * 10 * $k2 / 3600;
 
         }
 
@@ -333,7 +331,7 @@ if ($_POST['action'] == 'load_table') {
         $prev_total = $total_hours;
 
         //Ruajme ne array, pagen per cdo checkin ne baze te kushteve te mesiperm
-        $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['pay_per_checkin'] = round($pay_per_checkin,2);
+        $checkins[$row['user_id']][$row['check_in_date']]['checkins_per_day'][$row['id']]['pay_per_checkin'] = round($pay_per_checkin, 2);
         //shtojme diferencen ne ore checkout-checkin per cdo checkings qe kemi brenda nje date
         $checkins[$row['user_id']][$row['check_in_date']]['hours_per_date'] += $checkins_difference;
         //Llogarisimin sa ka punuar overtime
