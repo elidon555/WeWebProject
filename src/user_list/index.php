@@ -1,16 +1,20 @@
 <?php
 include('../_partials/header.php');
+if ($_SESSION['role']!="Admin"){
+    header('location:' . SITEURL . '_config/errors/error403.html');
+}
+
 
 
 /**
  * Nese nuk je Admin te con te profili pasi ske te drejte te shohesh listen e userave
  */
-if ($_SESSION['role'] == Config::USER) {
-    $_SESSION['no-access'] = "<br><div class='error text-center alert alert-danger' style='width:400px;margin:auto'>You don't have permission to access this page!</div>";
-
-    header('Location: http://localhost/WeWebProject/profile/index.php');
-    die();
-}
+//if ($_SESSION['role'] == Config::USER) {
+//    $_SESSION['no-access'] = "<br><div class='error text-center alert alert-danger' style='width:400px;margin:auto'>You don't have permission to access this page!</div>";
+//
+//    header('Location: http://localhost/WeWebProject/profile/index.php');
+//    die();
+//}
 
 ?>
 
@@ -34,8 +38,9 @@ if ($_SESSION['role'] == Config::USER) {
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="inputGroup-sizing-default">Email</span>
                 </div>
-                <input id="emailFilter" type="text" class=""
-                       placeholder="" aria-controls="user_list" aria-describedby="inputGroup-sizing-default">
+                <select  type="text" class="form-control filter" name='email'
+                        aria-controls="user_list" aria-describedby="inputGroup-sizing-default">
+                </select>
             </div>
         </div>
 
@@ -44,8 +49,10 @@ if ($_SESSION['role'] == Config::USER) {
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="inputGroup-sizing-default">Phone</span>
                 </div>
-                <input id="phoneFilter" type="number" class="" placeholder=""
-                       aria-controls="user_list" aria-describedby="inputGroup-sizing-default">
+                <select  type="number" class="form-control filter" placeholder="" name='phone_number'
+                        aria-controls="user_list" aria-describedby="inputGroup-sizing-default">
+
+                </select>
             </div>
         </div>
         <div class="col-sm-6 col-md-6 col-xs-12 col-lg-4">
@@ -53,13 +60,14 @@ if ($_SESSION['role'] == Config::USER) {
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="inputGroup-sizing-default">Date</span>
                 </div>
-                <input id="dateFilter" type="text" class="form-control" placeholder="" aria-controls="user_list"
-                       aria-describedby="inputGroup-sizing-default">
+                <input type="text" class="form-control daterange" placeholder="" aria-controls="user_list"
+                       aria-describedby="inputGroup-sizing-default" autocomplete='off'>
             </div>
         </div>
     </div>
 
     <button id="applyFilter" class="btn btn-dark">Apply Filter</button>
+    <button id="clearFilter" class="btn btn-info">Clear Filter</button>
     <p></p>
 
     <table id="user_list" class="display" style="width:100%">

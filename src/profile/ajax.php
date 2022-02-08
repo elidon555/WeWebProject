@@ -1,9 +1,12 @@
 <?php
 
 include_once('../_config/constants.php');
+if (!$_SESSION['id']){
+    header('location:' . SITEURL . '_config/errors/error401.html');
+}
+
+
 include_once('../public/functions.php');
-
-
 
 //Check if button submit is clicked
 if (isset($_SESSION['user'])) {

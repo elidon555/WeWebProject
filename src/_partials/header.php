@@ -1,7 +1,10 @@
 <?php
 
 include_once('../_config/constants.php');
-include_once('login-check.php');
+
+if (!$_SESSION['id']){
+    header('location:' . SITEURL . '_config/errors/error401.html');
+}
 include_once('../Config.php');
 //Authorization
 //Check if user is logged in or not
@@ -19,6 +22,7 @@ include_once('../Config.php');
     <link rel="stylesheet" href="../_plugins/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="../_plugins/daterangepicker.css"/>
     <link rel="stylesheet" type="text/css" href="../_plugins/jquery.dataTables.min.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="../_plugins/sweetalert2.min.css"></script>
 
 
@@ -45,6 +49,8 @@ window.onerror=silentErrorHandler;
         <div class="collapse navbar-collapse" id="nvbCollapse">
             <ul class="navbar-nav ml-auto">
 
+                <?php if($_SESSION['role']=="Admin") : ?>
+
                 <li class="nav-item pl-1">
                     <a class="nav-link" href="../user_list"><i
                                 class="fas fa-list-ul fa-fw mr-1"></i>User List</a>
@@ -54,6 +60,9 @@ window.onerror=silentErrorHandler;
                     <a class="nav-link" href="../checkins_list"><i
                                 class="fas fa-list-ul fa-fw mr-1"></i>User Checkins</a>
                 </li>
+
+                <?php endif; ?>
+
 
                 <li class="nav-item pl-1">
                     <a class="nav-link" href="../profile/index.php"><i

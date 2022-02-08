@@ -2,6 +2,7 @@
 
 include_once('../_config/constants.php');
 
+
 if (isset($_SESSION['login-error'])) {
     echo $_SESSION['login-error']; //Displaying session
     unset($_SESSION['login-error']); //Removing session

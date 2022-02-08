@@ -1,4 +1,9 @@
-<?php include('../_partials/header.php') ?>
+<?php include('../_partials/header.php');
+if ($_SESSION['role']!="Admin"){
+    header('location:' . SITEURL . '_config/errors/error403.html');
+}
+?>
+
 
 
 <body id="body" style="font-family: Arial">
@@ -16,20 +21,19 @@
                     </button>
                 </a></div>
             <div class="card-body">
-                <div class="form-inline justify-content-between">
+                <button id="applyFilter" class="btn btn-dark float-right">Apply Filter</button>
+                <div class="form-inline ">
 
-                    <div class="input-group input-group-default mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">Enter Date</span>
-                        </div>
-                        <input style="float:right" class="form-control" id="date" type="text" name="date" placeholder=""
+
+                    <label>Date
+                        <input class="form-control daterange" type="text" placeholder=""
                                value="">
-                        <button id="applyFilter" class="btn btn-dark">Apply Filter</button>
-                        <p></p>
-                    </div>
+                    </label>
+
 
                     <br>
                 </div>
+
                 <table id="checkins_list" class="display" style="width:100%">
                     <thead>
                     <tr>
@@ -48,7 +52,7 @@
                     <tfoot>
                     <tr>
 
-                >
+
                         <th>Show</th>
                         <th>Name</th>
                         <th>Dates</th>
@@ -63,7 +67,6 @@
             </div>
         </div>
     </div>
-
 
 
     <div class="modal fade" id="signupModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"

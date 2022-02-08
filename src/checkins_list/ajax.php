@@ -1,6 +1,12 @@
 <?php
 error_reporting(E_ALL ^ E_WARNING);
 include_once('../_config/constants.php');
+if (!$_SESSION['id']){
+    header('location:' . SITEURL . '_config/errors/error401.html');
+}
+if ($_SESSION['role']!="Admin"){
+    header('location:' . SITEURL . '_config/errors/error403.html');
+}
 include_once('../public/functions.php');
 /**
  *

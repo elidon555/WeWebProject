@@ -1,6 +1,14 @@
 <?php
 
 include_once('../_config/constants.php');
+
+if (!$_SESSION['id']){
+    header('location:' . SITEURL . '_config/errors/error401.html');
+}
+if ($_SESSION['role']!="Admin"){
+    header('location:' . SITEURL . '_config/errors/error403.html');
+}
+
 include_once('../public/functions.php');
 
 if ($_POST['action'] == "delete") {
@@ -60,8 +68,8 @@ if ($_POST['action'] == 'load_single_user') {
                         
                         Where u.user_id=' . $id . ' AND
                               u.user_id=r.user_id
-                        
                         ';
+
 
 
     $result = mysqli_query($conn, $sql_get_user);
@@ -81,6 +89,49 @@ if ($_POST['action'] == 'load_single_user') {
 
 }
 
+if ($_GET['action'] == 'select2Filter') {
+
+    if (!$_GET['email']=="")
+    $email = mysqli_escape_string($conn, $_GET['email']);
+    else {
+        $email="";
+    }
+
+    if (!$_GET['phone_number']=="")
+    $phone_number = mysqli_escape_string($conn, $_GET['phone_number']);
+    else {
+        $phone_number="";
+    }
+    $name = mysqli_escape_string($conn, $_GET['name']);
+
+
+    $searchQuery = " 
+    SELECT user_id,$name 
+    from users 
+    where        email LIKE '%".$email."%' 
+    AND   phone_number LIKE '%".$phone_number."%'
+    LIMIT 10
+    ";
+
+
+    $resultQuery = mysqli_query($conn,$searchQuery);
+
+    if (!$resultQuery){
+        echo json_encode(array("status" => 404, "message" => "Internal Server Error! " . __LINE__));
+        exit;
+    }
+
+    $json = [];
+    while ($row = mysqli_fetch_assoc($resultQuery)) {
+
+        $json[] = [ 'id'=>$row['user_id'], 'text'=>$row[$name]];
+    }
+
+    echo json_encode($json);
+    exit;
+
+}
+
 if ($_POST['action'] == 'load_table') {
 
     /**
@@ -92,6 +143,13 @@ if ($_POST['action'] == 'load_table') {
     $columnIndex = $_POST['order'][0]['column'];
     $columnName = $_POST['columns'][$columnIndex]['data'];
     $columnSortOrder = $_POST['order'][0]['dir'];
+    if ($_POST['startDate']==null || $_POST['endDate']==null) {
+        $startDate=null;
+        $endDate=null;
+    }
+    else {
+    $startDate = mysqli_real_escape_string($conn,$_POST['startDate']);
+    $endDate = mysqli_real_escape_string($conn,$_POST['endDate']);}
 
 
     /**
@@ -126,10 +184,9 @@ if ($_POST['action'] == 'load_table') {
 
     // Fitri i Dates
     $date_flt = "";
-    if (!empty($_POST['daterange'])) {
-        $dateRangeArray = explode(" - ", $_POST['daterange']);
+    if (!empty($startDate) && !empty($endDate)) {
 
-        $date_flt = " AND start_date >= '" . $dateRangeArray[0] . "' AND emd_date <= '" . $dateRangeArray[1] . "' ";
+        $date_flt = " AND ( date_of_birth >= '" . $startDate . "' AND date_of_birth <= '" . $endDate . "' ) ";
     }
 
 
@@ -208,6 +265,7 @@ if ($_POST['action'] == 'load_table') {
                    $searchQuery
                    $filter_email 
                    $filter_phone_number
+                   $date_flt
                    ORDER BY  $columnName $columnSortOrder $pagination";
 
 
@@ -231,11 +289,11 @@ if ($_POST['action'] == 'load_table') {
         $temp['atesia'] = $row['atesia'];
         $temp['date_of_birth'] = $row['date_of_birth'];
         $temp['phone_number'] = $row['phone_number'];
-        $temp['actions'] =" ";
+        $temp['actions'] = " ";
 
 
-
-        $data[] = $temp; }
+        $data[] = $temp;
+    }
 
 //Nese nuk kemi te dhena, i dergojm array bosh.
 
