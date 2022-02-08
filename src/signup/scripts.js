@@ -57,7 +57,7 @@ $(function () {
             },
             cache: false,
             dataType: 'json',
-            success: function (res) {
+      success: function (res) {
                var response = res;
 
                //I tregojme userit mesazhet e backend-it
@@ -69,6 +69,7 @@ $(function () {
                      'Your account registered successfully',
                      'success'
                   );
+                  localStorage.getItem('signup',"1")
                   setTimeout(function () {
                      window.location = '../login/index.php';
                   }, 1500);

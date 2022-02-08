@@ -2,19 +2,6 @@
 
 include_once('../_config/constants.php');
 
-
-if (isset($_SESSION['login-error'])) {
-    echo $_SESSION['login-error']; //Displaying session
-    unset($_SESSION['login-error']); //Removing session
-    echo "<br>";
-}
-
-if (isset($_SESSION['not-logged-in'])) {
-    echo $_SESSION['not-logged-in']; //Displaying session
-    unset($_SESSION['not-logged-in']); //Removing session
-    echo "<br>";
-}
-
 if ($_POST['action']=='login') {
 
 
@@ -29,11 +16,10 @@ if ($_POST['action']=='login') {
        u.password,
        roles.role_name 
     FROM users as u,
-         users_to_roles as r,roles 
-    WHERE email='" .$email."' 
+        users_to_roles as r,roles 
+    WHERE ( email='" .$email."' OR phone_number='" .$email. "' )
     AND u.user_id=r.user_id AND r.role_id=roles.role_id
-    OR phone_number='" .$email. "' 
-    AND u.user_id=r.user_id AND r.role_id=roles.role_id";
+    ";
 
     $res = mysqli_query($conn, $sql);
 
@@ -56,11 +42,11 @@ if ($_POST['action']=='login') {
 
             $_SESSION['user'] = $email;
             $_SESSION['id'] = $id;
-            $_SESSION['currently'] = "You are Logged in!";
             $_SESSION['fullName'] = $fullName;
             $_SESSION['role'] = $role;
 
-            exit('success');
+            echo json_encode(array("status" => 200, "message" => "Success" . __LINE__));
+            exit;
 
         } else {
             echo json_encode(array("status" => 404, "message" => "Wrong login information!" . __LINE__));

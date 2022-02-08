@@ -22,7 +22,7 @@ include_once('../Config.php');
     <link rel="stylesheet" href="../_plugins/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="../_plugins/daterangepicker.css"/>
     <link rel="stylesheet" type="text/css" href="../_plugins/jquery.dataTables.min.css"/>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="../_plugins/select2.min.css" rel="stylesheet" />
     <script src="../_plugins/sweetalert2.min.css"></script>
 
 

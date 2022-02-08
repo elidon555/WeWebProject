@@ -1,8 +1,8 @@
 <?php include('../_config/constants.php'); ?>
 
 
-<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+
 
 <head>
     <meta charset="UTF-8">
@@ -71,8 +71,10 @@
 <?php
 include_once('../_partials/footer.php');
 ?>
+<script src="scripts.js?v=<?= time(); ?>"></script>
 
-<script type="text/javascript" src="scripts.js?v=<?= filemtime('files/js/scripts.js') ?>"></script>
 
 
-</html>
+
+
+
