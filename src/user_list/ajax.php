@@ -3,7 +3,7 @@
 include_once('../_config/constants.php');
 
 if (!$_SESSION['id']){
-    header('location:' . SITEURL . '_config/errors/error401.html');
+    header('location:' . SITEURL . '/login');
 }
 if ($_SESSION['role']!="Admin"){
     header('location:' . SITEURL . '_config/errors/error403.html');
@@ -148,6 +148,8 @@ if ($_POST['action'] == 'load_table') {
         $endDate=null;
     }
     else {
+
+
     $startDate = mysqli_real_escape_string($conn,$_POST['startDate']);
     $endDate = mysqli_real_escape_string($conn,$_POST['endDate']);}
 

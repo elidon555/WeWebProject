@@ -1,9 +1,8 @@
 <?php include('../_partials/header.php');
-if ($_SESSION['role']!="Admin"){
+if ($_SESSION['role'] != "Admin") {
     header('location:' . SITEURL . '_config/errors/error403.html');
 }
 ?>
-
 
 
 <body id="body" style="font-family: Arial">
@@ -37,26 +36,30 @@ if ($_SESSION['role']!="Admin"){
                 <table id="checkins_list" class="display" style="width:100%">
                     <thead>
                     <tr>
-
-
                         <th>Show</th>
                         <th>Name</th>
                         <th>Dates</th>
                         <th>Normal hours</th>
+                        <th>N Salary</th>
                         <th>Overtime</th>
+                        <th>O Salary</th>
                         <th>Total hours</th>
+                        <th>Pay/Hour</th>
+                        <th>Salary</th>
                     </tr>
                     </thead>
                     <tfoot>
                     <tr>
-
-
                         <th>Show</th>
                         <th>Name</th>
                         <th>Dates</th>
                         <th>Normal hours</th>
+                        <th>N Salary</th>
                         <th>Overtime</th>
+                        <th>O Salary</th>
                         <th>Total hours</th>
+                        <th>Pay/Hour</th>
+                        <th>Salary</th>
                     </tr>
                     </tfoot>
                 </table>

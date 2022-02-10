@@ -8,7 +8,7 @@ ob_start();
 define('SITEURL', 'http://localhost/WeWebProject/src/');
 define('LOCALHOST', 'localhost');
 define('DB_USERNAME', 'root');
-define('DB_PASSWORD', 'root');
+define('DB_PASSWORD', '');
 define('DB_NAME', 'weweb');
 
 

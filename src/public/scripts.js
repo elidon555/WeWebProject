@@ -13,7 +13,6 @@ function isObject(val3) {
 }
 
 
-
 function delay(callback, ms) {
    var timer = 0
    return function () {

@@ -1,10 +1,32 @@
 <?php
 include_once('../_config/constants.php');
 
+if (!$_SESSION['id']){
+    header('location:' . SITEURL . 'login');
+}
+
 //Check if weekend
 function isWeekend($date)
 {
     return (date('N', strtotime($date)) >= 6);
+}
+
+function seconds2human($ss) {
+    $m = floor(($ss%3600)/60);
+    $h = floor(($ss%86400)/3600);
+
+    if ($ss>=3600) {
+        return "$h hours";
+    }
+
+    else if($ss==0){
+        return "-";
+    }
+
+   else if ($ss<3600){
+       return  "$m min";
+    }
+
 }
 
 //Upload image func
@@ -72,14 +94,7 @@ function empty_data($total_records, $error = "")
 //Password validation func
 function validate_password($pwd): bool
 {
-    if (
-        !preg_match('@[A-Z]@', $pwd) or
-        !preg_match('@[a-z]@', $pwd) or
-        !preg_match('@[0-9]@', $pwd) or
-        !preg_match('@[^\w]@', $pwd) or
-        !strlen($pwd) < 8
-    )
-        return false;
+    if (!preg_match('@[A-Z]@', $pwd) or !preg_match('@[a-z]@', $pwd) or !preg_match('@[0-9]@', $pwd) or !preg_match('@[^\w]@', $pwd) or !strlen($pwd) < 8) return false;
 
     else {
         return true;
@@ -281,11 +296,14 @@ if ($_POST['action'] == 'update||delete') {
     /**
      * Add role to the user.
      */
-    if ($_POST['role'] == 'User') {
-        $role = 2;
-    }
-    if ($_POST['role'] == 'Admin') {
-        $role = 1;
+
+    if ($_SESSION['role'] == "Admin") {
+        if ($_POST['role'] == 'User') {
+            $role = 2;
+        }
+        if ($_POST['role'] == 'Admin') {
+            $role = 1;
+        }
     } else {
         $role = 2;
     }

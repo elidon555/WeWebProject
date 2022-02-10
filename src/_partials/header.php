@@ -2,7 +2,7 @@
 
 include_once('../_config/constants.php');
 
-if (!$_SESSION['id']){
+if (!$_SESSION['id']) {
     header('location:' . SITEURL . '_config/errors/error401.html');
 }
 include_once('../Config.php');
@@ -20,8 +20,8 @@ include_once('../Config.php');
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="../style.css?v=<?= filemtime('../style.css') ?>">
     <link rel="stylesheet" href="../_plugins/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="../_plugins/daterangepicker.css"/>
-    <link rel="stylesheet" type="text/css" href="../_plugins/jquery.dataTables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../_plugins/daterangepicker.css" />
+    <link rel="stylesheet" type="text/css" href="../_plugins/jquery.dataTables.min.css" />
     <link href="../_plugins/select2.min.css" rel="stylesheet" />
     <script src="../_plugins/sweetalert2.min.css"></script>
 
@@ -40,7 +40,7 @@ window.onerror=silentErrorHandler;
     <div class="container">
 
         <a class="navbar-brand text-white"><i
-                    class="fas fa-globe"></i><?php echo " " . $_SESSION['role'] . ": " . $_SESSION['fullName'] ?></a>
+                class="fas fa-globe"></i><?php echo " " . $_SESSION['role'] . ": " . $_SESSION['fullName'] ?></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nvbCollapse"
                 aria-controls="nvbCollapse">
             <span class="navbar-toggler-icon"><i class="fas fa-bars"></i></span>
@@ -49,30 +49,36 @@ window.onerror=silentErrorHandler;
         <div class="collapse navbar-collapse" id="nvbCollapse">
             <ul class="navbar-nav ml-auto">
 
-                <?php if($_SESSION['role']=="Admin") : ?>
+                <?php if ($_SESSION['role'] == "Admin") : ?>
 
-                <li class="nav-item pl-1">
-                    <a class="nav-link" href="../user_list"><i
+                    <li class="nav-item pl-1">
+                        <a class="nav-link" href="../salary_list"><i
+                                class="fas fa-list-ul fa-fw mr-1"></i>Salary List</a>
+                    </li>
+
+
+                    <li class="nav-item pl-1">
+                        <a class="nav-link" href="../user_list"><i
                                 class="fas fa-list-ul fa-fw mr-1"></i>User List</a>
-                </li>
+                    </li>
 
-                <li class="nav-item pl-1">
-                    <a class="nav-link" href="../checkins_list"><i
+                    <li class="nav-item pl-1">
+                        <a class="nav-link" href="../checkins_list"><i
                                 class="fas fa-list-ul fa-fw mr-1"></i>User Checkins</a>
-                </li>
+                    </li>
 
                 <?php endif; ?>
 
 
                 <li class="nav-item pl-1">
                     <a class="nav-link" href="../profile/index.php"><i
-                                class="fas fa-list-ul fa-fw mr-1"></i>Profile</a>
+                            class="fas fa-list-ul fa-fw mr-1"></i>Profile</a>
                 </li>
 
 
                 <li class="nav-item pl-1">
                     <a class="nav-link" href="../log-out.php"><i
-                                class="fas fa-sign-out-alt"></i> Log out</a>
+                            class="fas fa-sign-out-alt"></i> Log out</a>
                 </li>
 
             </ul>

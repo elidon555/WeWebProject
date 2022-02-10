@@ -1,8 +1,9 @@
 <?php
 
 include_once('../_config/constants.php');
+
 if (!$_SESSION['id']){
-    header('location:' . SITEURL . '_config/errors/error401.html');
+    header('location:' . SITEURL . 'login');
 }
 
 
