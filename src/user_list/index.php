@@ -100,6 +100,7 @@ if ($_SESSION['role']!="Admin"){
 
     <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
+
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -109,6 +110,8 @@ if ($_SESSION['role']!="Admin"){
                     </button>
                 </div>
                 <div class="modal-body">
+                    <form id='formSignUp'>
+
 
 
                     <div class="form-row">
@@ -220,7 +223,9 @@ if ($_SESSION['role']!="Admin"){
                     <a class="btn btn-outline-info ml-3" id="dw" class="button" href="" download="image.png">Download
                         image</a>
 
+
                 </div>
+                </form>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="button" onclick="create_edit_user()"

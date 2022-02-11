@@ -79,6 +79,12 @@ if ($_POST['action'] == 'load_table') {
     $columnName = $_POST['columns'][$columnIndex]['data'];
     $columnSortOrder = $_POST['order'][0]['dir'];
 
+    if ($columnName == "user_id") {
+        $columnName = "user_id";
+    }
+    $startDate = mysqli_real_escape_string($conn, $_POST['startDate']);
+    $endDate = mysqli_real_escape_string($conn, $_POST['endDate']);
+
     $searchValue = mysqli_real_escape_string($conn, $_POST['search']['value']);
     $searchQuery = " ";
 
@@ -102,7 +108,8 @@ if ($_POST['action'] == 'load_table') {
      * numrin tital e marrim permes ketij query
      */
     $query_without_ftl = "SELECT COUNT(*) AS allcount 
-                          FROM users where 1=1 ";
+                          FROM users
+ ";
 
     $result_without_ftl = mysqli_query($conn, $query_without_ftl);
 
@@ -113,7 +120,6 @@ if ($_POST['action'] == 'load_table') {
 
     $records = mysqli_fetch_assoc($result_without_ftl);
     $totalRecords = $records['allcount'];
-
     /**
      * Numrin total te rekordeve duke aplikuar filtrin search
      */
@@ -122,7 +128,6 @@ if ($_POST['action'] == 'load_table') {
                        where first_name like '%" . $searchValue . "%' 
                              OR last_name like '%" . $searchValue . "%'
                              ";
-
 
     $result_with_ftl = mysqli_query($conn, $query_with_ftl);
     if (!$result_with_ftl) {
@@ -133,17 +138,39 @@ if ($_POST['action'] == 'load_table') {
     $records_with_ftl = mysqli_fetch_assoc($result_with_ftl);
     $totalRecordwithFilter = $records_with_ftl['allcount'];
 
+
+
+    //        $query_data .= "AND "
+
     /**
      * Merren te dhenat qe do analizohen dhe do behet llogaritja perkatese
      * Behet perllogaritja e te dhenave ne vektorin data
      */
-    $query_data = "SELECT user_id,
-                          first_name,
-                          last_name
-                          
-                          
-                   FROM users where 1 = 1   
-                   $searchQuery  ORDER BY  $columnName $columnSortOrder $pagination";
+    $query_data = "    
+                      SELECT 
+                      users.first_name,
+                      users.last_name,
+                      checkins.user_id,
+                      checkins.id, 
+                      check_in_date, 
+                      check_in_hour, 
+                      check_out_hour, 
+                      check_out_date 
+                      FROM 
+                      checkins 
+                      INNER JOIN users 
+                      ON users.user_id = checkins.user_id     
+                      INNER JOIN (
+                                SELECT DISTINCT user_id 
+                                FROM users 
+                                WHERE 1=1 $searchQuery
+                                ORDER BY 
+                                $columnName $columnSortOrder $pagination
+                      ) AS m 
+                     ON m.user_id = users.user_id 
+                     WHERE check_in_date >= '" . $startDate . "' AND check_in_date<= '" . $endDate . "'
+                     ORDER BY checkins.check_in_date DESC, users.user_id DESC
+                     ";
 
 
     $result_data = mysqli_query($conn, $query_data);
@@ -155,91 +182,31 @@ if ($_POST['action'] == 'load_table') {
     }
 
 
-    //vlerat e id-se te cilat na duhen per checkin
-    $id_values = array();
-
-    //array ku do ruajme te dhenat qe ja cojme frontend-it
-    $data = array();
-
+    $time = time_to_sec('09:00:00');
+    $total_hours = 0;
+    $prev_total = 0;
     while ($row = mysqli_fetch_assoc($result_data)) {
         //krijojme variablen temp qe ti bejme push te dhenat ne array
-        $temp = array();
+
+        $date_new = $row['check_in_date'];
+        $id_new = $row['user_id'];
+//        echo $date." ".$id_new." ||||";
+        if (isset($date_old)) {
+            // If id or date changes,prevTotal and total resets back to 0
+            if ($date_old !== $date_new || $id_old !== $id_new) {
+
+                $prev_total = 0;
+                $total_hours = 0;
+            }
+        }
+
+        $date_old = $row['check_in_date'];
+        $id_old = $row['user_id'];
 
         //Marrim te dhenat nga SQL-dhe I bejme push ne array
-        $temp['user_id'] = $row['user_id'];
-        $temp['show'] = " ";
-        $temp['first_name'] = $row["first_name"] . " " . $row["last_name"];
-        $temp['dates'] = 0;
-        $temp['normal_hours'] = 0;
-        $temp['overtime'] = 0;
-        $temp['total_hours_in'] = 0;
-        $temp['overtime'] = 0;
-        $temp['salary_per_hour'] = 0;
-        $temp['salary'] = 0;
+        $data[$row['user_id']]['user_id'] = $row['user_id'];
+        $data[$row['user_id']]['first_name'] = $row["first_name"] . " " . $row["last_name"];
 
-        $data[] = $temp;
-        $id_values[] = $row['user_id'];
-
-    }
-
-    if (!isset($_POST['startDate']) || !isset($_POST['endDate'])) {
-        $startDate = date('Y-m-d', strtotime('-30 days'));
-        $endDate = date('Y-m-d', strtotime('today'));
-
-    } else {
-
-        $startDate = mysqli_real_escape_string($conn, $_POST['startDate']);
-        $endDate = mysqli_real_escape_string($conn, $_POST['endDate']);
-    }
-
-    $sql_get_checkings = 'SELECT
-    checkins.id,
-    checkins.user_id,
-    checkins.check_in_date,
-    checkins.check_in_hour,
-    checkins.check_out_hour,
-    checkins.check_out_date
-
-    FROM checkins
-
-    WHERE  checkins.check_in_date >= "' . $startDate . '" AND checkins.check_in_date <= "' . $endDate . '"
-
-    ';
-
-    for ($i = 0; $i < sizeOf($id_values); $i++) {
-
-        if (sizeOf($id_values) == 1) {
-            $sql_get_checkings .= ' AND checkins.user_id IN (' . $id_values[$i] . ') ';
-            break;
-        }
-
-        if ($i == 0) {
-            $sql_get_checkings .= ' AND checkins.user_id IN (' . $id_values[$i] . ', ';
-        }
-
-        if ($i == (sizeOf($id_values) - 1)) {
-            $sql_get_checkings .= ' ' . $id_values[$i] . ') ';
-        } else {
-            $sql_get_checkings .= ' ' . $id_values[$i] . ', ';
-        }
-    }
-    $sql_get_checkings .= " ORDER BY checkins.user_id ASC, checkins.check_in_date DESC";
-
-    $result_checkins = mysqli_query($conn, $sql_get_checkings);
-
-    if (!$result_checkins) {
-        echo json_encode(array("status" => 404, "message" => "Internal Server Error " . __LINE__));
-        exit;
-    }
-
-    //Array te cilin do cojme te dhenat ne front end
-    $checkins = array();
-
-    //Deklarojme variablen e cila tregon orarin normal ne sekonda
-    $time = time_to_sec('09:00:00');
-
-
-    while ($row = mysqli_fetch_assoc($result_checkins)) {
         /**
          * Llogarisimin differencen per cdocheckin dhe nese eshte negative, I shtojme 24 ore se ashtu I bie.
          */
@@ -249,74 +216,83 @@ if ($_POST['action'] == 'load_table') {
             $checkins_difference += time_to_sec("24:00:00");
         }
 
+        $total_hours += $checkins_difference;
 
-        //3d - checkins per date // shtojme te dhenat baze te checkings
+        $data[$row['user_id']]['row_details'][$row['check_in_date']]['row_details'][] = array('check_in_date' => $row['check_in_date'], 'check_in_hour' => $row['check_in_hour'], 'check_out_hour' => $row['check_out_hour'], 'check_out_date' => $row['check_out_date']);
 
-        $index_of_id = array_search($row['user_id'], $id_values);
-
-        $data[$index_of_id]['row_details'][$row['check_in_date']]['row_details'][$row['id']]['check_in_date'] = $row['check_in_date'];
-        $data[$index_of_id]['row_details'][$row['check_in_date']]['row_details'][$row['id']]['check_in_hour'] = $row['check_in_hour'];
-        $data[$index_of_id]['row_details'][$row['check_in_date']]['row_details'][$row['id']]['check_out_hour'] = $row['check_out_hour'];
-        $data[$index_of_id]['row_details'][$row['check_in_date']]['row_details'][$row['id']]['check_out_date'] = $row['check_out_date'];
         //shtojme user id se na nevojitet
-        $data[$index_of_id]['row_details'][$row['check_in_date']]['user_id'] = $row['user_id'];
+        $data[$row['user_id']]['row_details'][$row['check_in_date']]['user_id'] = $row['user_id'];
         //ruajme daten
-        $data[$index_of_id]['row_details'][$row['check_in_date']]['check_in_date'] = $row['check_in_date'];
+        $data[$row['user_id']]['row_details'][$row['check_in_date']]['check_in_date'] = $row['check_in_date'];
 
         //shtojme diferencen ne ore checkout-checkin per cdo checkings qe kemi brenda nje date
-        $data[$index_of_id]['row_details'][$row['check_in_date']]['hours_per_date'] += $checkins_difference;
+        $data[$row['user_id']]['row_details'][$row['check_in_date']]['hours_per_date'] += $checkins_difference;
+        $data[$row['user_id']]['total_hours_in'] += $checkins_difference;
         //Llogarisimin sa ka punuar overtime
-        $overtime = $data[$index_of_id]['row_details'][$row['check_in_date']]['hours_per_date'] - $time;
-        /**
-         * Llogarisim sa ore ka punuar overtime brenda 1 dite
-         */
-        if ($overtime > 0) {
-            $data[$index_of_id]['row_details'][$row['check_in_date']]['overtime'] = $overtime;
-            $data[$index_of_id]['row_details'][$row['check_in_date']]['normal_hours'] = $time;
 
-            $data[$index_of_id]['total_hours_in'] += $overtime + $time;
-            $data[$index_of_id]['overtime'] += $overtime;
-            $data[$index_of_id]['normal_hours'] += $time;
-        } else {
-            $data[$index_of_id]['row_details'][$row['check_in_date']]['overtime'] = 0;
-            $data[$index_of_id]['row_details'][$row['check_in_date']]['normal_hours'] += $checkins_difference;
-            $data[$index_of_id]['total_hours_in'] += $checkins_difference;
-            $data[$index_of_id]['normal_hours'] += $checkins_difference;
-            $data[$index_of_id]['normal_hours'] += 0;
+        if ($total_hours < $time) {
+
+            $data[$row['user_id']]['normal_hours'] += $checkins_difference;
+
+            $data[$row['user_id']]['row_details'][$row['check_in_date']]['normal_hours'] += $checkins_difference;
+
+        } else if ($total_hours > $time && $prev_total < $time) {
+
+            $data[$row['user_id']]['overtime'] += $total_hours - $time;
+            $data[$row['user_id']]['normal_hours'] += ($time - $prev_total);
+
+            $data[$row['user_id']]['row_details'][$row['check_in_date']]['overtime'] = $total_hours - $time;
+            $data[$row['user_id']]['row_details'][$row['check_in_date']]['normal_hours'] = $time;
+
+        } else if ($total_hours > $time && $prev_total > $time) {
+
+            $data[$row['user_id']]['overtime'] += $total_hours - $prev_total;
+
+            $data[$row['user_id']]['row_details'][$row['check_in_date']]['overtime'] += $checkins_difference;
+            $data[$row['user_id']]['row_details'][$row['check_in_date']]['normal_hours'] = $time;
+
         }
-        //store how many checkings we got per day, by counting number of arrays inside row_details
-        if (is_array($data[$index_of_id]['row_details'][$row['check_in_date']]['row_details'][$row['id']])) {
-            $data[$index_of_id]['row_details'][$row['check_in_date']]['count'] += 1;
-            $data[$index_of_id]['dates'] += 1;
+        //Ruajme totalin per iterimin e ardhshem
+        $prev_total = $total_hours;
 
+        if (is_array($data[$row['user_id']]['row_details'][$row['check_in_date']]['row_details'])) {
+            $data[$row['user_id']]['row_details'][$row['check_in_date']]['count'] = sizeof($data[$row['user_id']]['row_details'][$row['check_in_date']]['row_details']);
+            $data[$row['user_id']]['dates'] += 1;
         }
     }
+
+
+    $cal_data = array();
+    $details1 = array();
+    $i = 0;
+
 
     foreach ($data as &$value) {
+
         $value['total_hours_in'] = seconds2human($value['total_hours_in']);
-        $value['overtime']=seconds2human($value['overtime']);
+        $value['overtime'] = seconds2human($value['overtime']);
         $value['normal_hours'] = seconds2human($value['normal_hours']);
 
-        foreach($value['row_details'] as &$details){
+        $details1 = [];
 
-            $details['normal_hours']=seconds2human($details['normal_hours']);
-            $details['overtime']=seconds2human($details['overtime']);
-            $details['hours_per_date']=seconds2human($details['hours_per_date']);
+        foreach ($value['row_details'] as &$details) {
 
+            $details['normal_hours'] = seconds2human($details['normal_hours']);
+            $details['overtime'] = seconds2human($details['overtime']);
+            $details['hours_per_date'] = seconds2human($details['hours_per_date']);
+
+            $details1[] = $details;
 
         }
+        $cal_data[] = $value;
+        $cal_data[$i]['row_details'] = $details1;
 
-
+        $i++;
     }
 
-
-//Nese nuk kemi te dhena, i dergojm array bosh.
-    if (empty($table_data)) {
-        $table_data = [];
-    }
 
     //Ja dergojme response-in backendit
-    $response = array("draw" => intval($draw), "iTotalRecords" => $totalRecords, "iTotalDisplayRecords" => $totalRecordwithFilter, "aaData" => $data, "checkins" => $checkins);
+    $response = array("draw" => intval($draw), "iTotalRecords" => $totalRecords, "iTotalDisplayRecords" => $totalRecordwithFilter, "aaData" => $cal_data);
     echo json_encode($response);
     exit;
 }

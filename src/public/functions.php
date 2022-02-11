@@ -13,7 +13,7 @@ function isWeekend($date)
 
 function seconds2human($ss) {
     $m = floor(($ss%3600)/60);
-    $h = floor(($ss%86400)/3600);
+    $h = floor($ss / 3600);
 
     if ($ss>=3600) {
         return "$h hours";
@@ -27,6 +27,13 @@ function seconds2human($ss) {
        return  "$m min";
     }
 
+}
+
+function x_week_range($date) {
+    $ts = strtotime($date);
+    $start = (date('w', $ts) == 0) ? $ts : strtotime('last last sunday', $ts);
+    return array(date('d-M-y', $start),
+        date('d-M-y', strtotime('next saturday', $start)));
 }
 
 //Upload image func

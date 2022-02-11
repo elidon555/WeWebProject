@@ -1,5 +1,4 @@
 $(function() {
-
     //here we save the opened tbl2 rows in array
     //so when user filters date, it auto opens them
     var openedTables = new Set();
@@ -8,7 +7,12 @@ $(function() {
      * Bejme inicializimin e tabeles kryesore
      */
     var tbl1 = $('#checkins_list').DataTable({
-        processing: true, serverSide: true, ordering: true, pageLength: 10, lengthMenu: [5, 10, 20], ajax: {
+        processing: true,
+        serverSide: true,
+        ordering: true,
+        pageLength: 10,
+        lengthMenu: [5, 10, 20],
+        ajax: {
             data: function(data) {
                 data.action = 'load_table';
                 //Ne momentin qe bejme load tabelen, backendi merr diten e sotme minus 30 dite
@@ -21,9 +25,11 @@ $(function() {
                     .data('daterangepicker')
                     .endDate.format('YYYY-MM-DD');
 
-                data.startDate = "2021-12-10";
+                data.startDate = startDate;
                 data.endDate = endDate;
-            }, url: 'ajax.php', type: 'post'
+            }, url: 'ajax.php',
+            type: 'post',
+
         }, columns: [{
             class: 'details-control1',
             data: "user_id",
@@ -88,8 +94,6 @@ $(function() {
         var row = tbl1.row(tr);
         var index = parseInt(row[0]) + 1;
 
-
-
         if (row.child.isShown()) {
             tr.removeClass('details');
             row.child.hide();
@@ -103,10 +107,7 @@ $(function() {
 
             row.child(format_tbl2_html()).show();
 
-            var data = Object.values(row.data().row_details)
-            console.log(data);
-
-            initialize_table_2(data);
+            initialize_table_2(row.data().row_details);
 
             tr.find('.fas').attr('class', 'fas fa-minus-circle fa-lg text-danger');
         }
@@ -188,11 +189,10 @@ $(function() {
                 tr.find('.fa-minus-circle').attr('class', 'fas fa-plus-circle fa-lg text-dark');
             } else {
                 // initialize_table_3(user_id);
-                var data = Object.values(row.data().row_details)
 
                 row.child(format_tbl3_html()).show();
 
-                initialize_table_3(data);
+                initialize_table_3(row.data().row_details);
 
                 //Ndryshim ikone ne show
                 tr.find('.fa-plus-circle').attr('class', 'fas fa-minus-circle fa-lg text-dark');
@@ -240,8 +240,6 @@ $(function() {
             }]
         });
     }
-
-
 
     $('#addCheckin').on('click', function(event) {
         event.preventDefault();

@@ -295,12 +295,16 @@ $(function () {
    var signup_modal_s = $('#signupModal')
 
    //Kur bejme hide signup modal, fshijme vleren e file input + bejme hide file preview
-   signup_modal_s.on('hide.bs.modal', function () {
+   signup_modal_s.on('hidden.bs.modal', function () {
       document.getElementById('File').value = null
+      document.getElementById("formSignUp").reset();
+
+
       $('#blah').hide()
    })
 
    signup_modal_s.on('shown.bs.modal', function () {
+
       window.edit = 0
       //Bejme load daterangepicker
       single_date_picker()
