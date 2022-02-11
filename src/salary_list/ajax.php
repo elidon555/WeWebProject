@@ -266,8 +266,7 @@ if ($_POST['action'] == 'load_table') {
     while ($row = mysqli_fetch_assoc($result_checkins)) {
 
         $date = new DateTime($row['check_in_date']);
-        $week = $date->format("W-Y")."<br>";
-
+        $week = $date->format("W")."<br>";
 
         /**
          * If id or date changes,prevTotal and total resets back to 0
