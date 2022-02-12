@@ -110,11 +110,10 @@ if ($_SESSION['role']!="Admin"){
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id='formSignUp'>
-
 
 
                     <div class="form-row">
+
 
                         <input style="display:none" type="text" id="id_user" value="">
 
@@ -225,7 +224,7 @@ if ($_SESSION['role']!="Admin"){
 
 
                 </div>
-                </form>
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="button" onclick="create_edit_user()"
@@ -248,6 +247,7 @@ if ($_SESSION['role']!="Admin"){
                     </button>
                 </div>
                 <div class="modal-body">
+                    <form id='formSignUp'>
                     <div class="form-row">
 
                         <div class="form-group col-md-4">
@@ -334,7 +334,7 @@ if ($_SESSION['role']!="Admin"){
 
 
                     </div>
-
+                    </form>
 
                     <div class="form-group">
                         <input id="File" type="file" name="image" accept=".png,.jpg"

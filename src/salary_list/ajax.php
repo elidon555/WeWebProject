@@ -1,10 +1,10 @@
 <?php
 error_reporting(E_ALL ^ E_WARNING);
 include_once('../_config/constants.php');
-if (!$_SESSION['id']){
+if (!$_SESSION['id']) {
     header('location:' . SITEURL . 'login');
 }
-if ($_SESSION['role']!="Admin"){
+if ($_SESSION['role'] != "Admin") {
     header('location:' . SITEURL . '_config/errors/error403.html');
 }
 include_once('../public/functions.php');
@@ -79,6 +79,10 @@ if ($_POST['action'] == 'load_table') {
     $columnName = $_POST['columns'][$columnIndex]['data'];
     $columnSortOrder = $_POST['order'][0]['dir'];
 
+    if ($columnName == "") {
+        $columnName = "user_id";
+    }
+
     $searchValue = mysqli_real_escape_string($conn, $_POST['search']['value']);
     $searchQuery = " ";
 
@@ -87,6 +91,16 @@ if ($_POST['action'] == 'load_table') {
             first_name LIKE '%" . $searchValue . "%' OR
             last_name LIKE '%" . $searchValue . "%' )
            ";
+    }
+
+    if (!isset($_POST['startDate']) || !isset($_POST['endDate'])) {
+        $startDate = date('Y-m-d', strtotime('-30 days'));
+        $endDate = date('Y-m-d', strtotime('today'));
+
+    } else {
+
+        $startDate = mysqli_real_escape_string($conn, $_POST['startDate']);
+        $endDate = mysqli_real_escape_string($conn, $_POST['endDate']);
     }
 
 // Rsati kur zgjidhet All duhet te hiqen te gjitha limitimet ne pagination
@@ -137,101 +151,42 @@ if ($_POST['action'] == 'load_table') {
      * Merren te dhenat qe do analizohen dhe do behet llogaritja perkatese
      * Behet perllogaritja e te dhenave ne vektorin data
      */
-    $query_data = "SELECT user_id,
-                          first_name,
-                          last_name
-                          
-                          
-                   FROM users where 1 = 1   
-                   $searchQuery  ORDER BY  $columnName $columnSortOrder $pagination";
+    $query_data = "    
+                      SELECT 
+                      users.first_name,
+                      users.last_name,
+                      checkins.user_id,
+                      checkins.id, 
+                      check_in_date, 
+                      check_in_hour, 
+                      check_out_hour, 
+                      check_out_date 
+                      FROM 
+                      checkins 
+                      INNER JOIN users 
+                      ON users.user_id = checkins.user_id     
+                      INNER JOIN (
+                                SELECT DISTINCT user_id 
+                                FROM users 
+                                WHERE 1=1 $searchQuery
+                                ORDER BY 
+                                $columnName $columnSortOrder $pagination
+                      ) AS m 
+                     ON m.user_id = users.user_id 
+                     WHERE check_in_date >= '" . $startDate . "' AND check_in_date<= '" . $endDate . "'
+                     ORDER BY checkins.check_in_date DESC, users.user_id DESC
+                     ";
 
 
     $result_data = mysqli_query($conn, $query_data);
-
 
     if (!$result_data) {
         $error = mysqli_error($conn) . " " . __LINE__;
         empty_data($totalRecords, $error);
     }
 
-
-    //vlerat e id-se te cilat na duhen per checkin
-    $id_values = array();
-
     //array ku do ruajme te dhenat qe ja cojme frontend-it
     $data = array();
-
-    while ($row = mysqli_fetch_assoc($result_data)) {
-        //krijojme variablen temp qe ti bejme push te dhenat ne array
-        $temp = array();
-
-        //Marrim te dhenat nga SQL-dhe I bejme push ne array
-        $temp['user_id'] = $row['user_id'];
-        $temp['show'] = " ";
-        $temp['dates'] = " ";
-        $temp['first_name'] = $row["first_name"] . " " . $row["last_name"];
-        $temp['total_hours_in'] = " ";
-        $temp['normal_hours'] = " ";
-        $temp['normal_salary'] = " ";
-        $temp['overtime'] = " ";
-        $temp['overtime_salary'] = " ";
-        $temp['salary_per_hour'] = " ";
-        $temp['salary'] = " ";
-
-        $data[] = $temp;
-        $id_values[] = $row['user_id'];
-
-    }
-
-    if (!isset($_POST['startDate']) || !isset($_POST['endDate'])) {
-        $startDate = date('Y-m-d', strtotime('-30 days'));
-        $endDate = date('Y-m-d', strtotime('today'));
-
-    } else {
-
-        $startDate = mysqli_real_escape_string($conn, $_POST['startDate']);
-        $endDate = mysqli_real_escape_string($conn, $_POST['endDate']);
-    }
-
-    $sql_get_checkings = 'SELECT
-    checkins.id,
-    checkins.user_id,
-    checkins.check_in_date,
-    checkins.check_in_hour,
-    checkins.check_out_hour,
-    checkins.check_out_date
-
-    FROM weweb.checkins as checkins ,weweb.users as users
-
-    WHERE users.user_id = checkins.user_id AND checkins.check_in_date >= "' . $startDate . '" AND checkins.check_in_date <= "' . $endDate . '"
-
-    ';
-
-    for ($i = 0; $i < sizeOf($id_values); $i++) {
-
-        if (sizeOf($id_values) == 1) {
-            $sql_get_checkings .= ' AND checkins.user_id IN (' . $id_values[$i] . ') ';
-            break;
-        }
-
-        if ($i == 0) {
-            $sql_get_checkings .= ' AND checkins.user_id IN (' . $id_values[$i] . ', ';
-        }
-
-        if ($i == (sizeOf($id_values) - 1)) {
-            $sql_get_checkings .= ' ' . $id_values[$i] . ') ';
-        } else {
-            $sql_get_checkings .= ' ' . $id_values[$i] . ', ';
-        }
-    }
-    $sql_get_checkings .= " ORDER BY checkins.user_id ASC, checkins.check_in_date DESC";
-
-    $result_checkins = mysqli_query($conn, $sql_get_checkings);
-
-    if (!$result_checkins) {
-        echo json_encode(array("status" => 404, "message" => "Internal Server Error " . __LINE__));
-        exit;
-    }
 
     //Array te cilin do cojme te dhenat ne front end
     $checkins = array();
@@ -245,29 +200,20 @@ if ($_POST['action'] == 'load_table') {
     $prev_total = 0;
     //Holiday array
     $year = date("Y");
-    $holiday_array = array(
-        "01-01",
-        "03-14",
-        "03-22",
-        "04-17",
-        "04-18",
-        "05-01",
-        "05-02",
-        "05-13",
-        "07-20",
-        "09-05",
-        "11-28",
-        "11-29",
-        "12-08",
-        "05-25");
+    $holiday_array = array("01-01", "03-14", "03-22", "04-17", "04-18", "05-01", "05-02", "05-13", "07-20", "09-05", "11-28", "11-29", "12-08", "05-25");
 
-    $i=0;
+    $i = 0;
 
-    while ($row = mysqli_fetch_assoc($result_checkins)) {
 
-        $date = new DateTime($row['check_in_date']);
-        $week = $date->format("W")."<br>";
+    while ($row = mysqli_fetch_assoc($result_data)) {
 
+        $date = $row['check_in_date'];
+        $week = date("W", strtotime($row['check_in_date']));
+
+        $week_start = date("d-m-y", strtotime('monday this week', strtotime($date)));
+        $week_end = date("d-m-y", strtotime('sunday this week', strtotime($date)));
+
+        $data[$row['user_id']]['row_details'][$week]['date'] = $week_end . "<br>" . $week_start;
         /**
          * If id or date changes,prevTotal and total resets back to 0
          */
@@ -288,25 +234,30 @@ if ($_POST['action'] == 'load_table') {
          * End of total hour reset.
          */
 
+        //Vendosim id-ne e userit si dhe emrin
+        $data[$row['user_id']]['user_id'] = $row['user_id'];
+        $data[$row['user_id']]['first_name'] = $row["first_name"] . " " . $row["last_name"];
+
+
         /**
          * Let's setup the coefficients
          */
         $month = substr($row['check_in_date'], 5);
-
+        $sph = 10 / 3600;
         if (in_array($month, $holiday_array)) {
-            $k1 = 1.5;
-            $k2 = 2;
+            $k1 = 1.5 * $sph;
+            $k2 = 2 * $sph;
         } else if (isWeekend($row['check_in_date'])) {
-            $k1 = 1.25;
-            $k2 = 1.5;
+            $k1 = 1.25 * $sph;
+            $k2 = 1.5 * $sph;
         } else {
-            $k1 = 1;
-            $k2 = 1.25;
+            $k1 = 1 * $sph;
+            $k2 = 1.25 * $sph;
         }
-
         /**
          * Llogarisimin differencen per cdocheckin dhe nese eshte negative, I shtojme 24 ore se ashtu I bie.
          */
+        $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['date'] = $row['check_in_date'];
         $checkins_difference = time_to_sec($row['check_out_hour']) - time_to_sec($row['check_in_hour']);
 
         if ($checkins_difference < 0) {
@@ -316,55 +267,151 @@ if ($_POST['action'] == 'load_table') {
         //Incrementojme totalin me cdo checkin brenda 1 dite
         $total_hours += $checkins_difference;
 
-        //3d - checkins per date // shtojme te dhenat baze te checkings
-        $checkins[$row['user_id']][$week]['dates'][$row['check_in_date']]['checkins_per_day'][$row['id']] = [
-            'check_in_date' => $row['check_in_date'],
-            'count' => $checkins[$row['user_id']][$week]['dates'][$row['check_in_date']]['checkins_per_day'][$row['id']]['count'] + $row['count'],
-        ];
+
+        //Nese totali eshte me i vogel se orari normal, thjesht shtojme sa ka punuar per ate checkin specifik
+        if ($total_hours < $time) {
+
+            if ($k1 == 1.5 * $sph) {
+                $data[$row['user_id']]['normal_hours_holiday'] += $checkins_difference;
+            } else if ($k1 == 1.25 * $sph) {
+                $data[$row['user_id']]['normal_hours_weekend'] += $checkins_difference;
+            } else {
+                $data[$row['user_id']]['normal_hours_normal'] += $checkins_difference;
+            }
+
+            $data[$row['user_id']]['normal_hours'] += $checkins_difference;
+            $data[$row['user_id']]['normal_salary'] += $checkins_difference * $k1;
+
+            $data[$row['user_id']]['row_details'][$week]['normal_hours'] += $checkins_difference;
+            $data[$row['user_id']]['row_details'][$week]['normal_salary'] += $checkins_difference * $k1;
+
+            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['normal_hours'] += $checkins_difference;
+            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['normal_salary'] += $checkins_difference * $k1;
+
+            //Kjo ekzekutohet vetem 1 here per dite
+            //Nese Totali eshte me i madh se orari normal, por totali i checkinit te kaluar ishte me i vogel se orari normal
+        } else if ($total_hours > $time && $prev_total < $time) {
+
+            if ($k1 == 1.5 * $sph) {
+                $data[$row['user_id']]['normal_hours_holiday'] += ($time - $prev_total);
+            } else if ($k1 == 1.25 * $sph) {
+                $data[$row['user_id']]['normal_hours_weekend'] += ($time - $prev_total);
+            } else {
+                $data[$row['user_id']]['normal_hours_normal'] += ($time - $prev_total);
+            }
+
+            //calculate total per user hours and salary
+            $data[$row['user_id']]['normal_hours'] += ($time - $prev_total);
+            $data[$row['user_id']]['normal_salary'] += ($time - $prev_total) * $k1;
+            $data[$row['user_id']]['overtime'] += ($total_hours - $time);
+            $data[$row['user_id']]['overtime_salary'] += ($total_hours - $time) * $k2;
+
+            //calculate total per week and salary
+            $data[$row['user_id']]['row_details'][$week]['normal_hours'] += $time - $prev_total;
+            $data[$row['user_id']]['row_details'][$week]['normal_salary'] += ($time - $prev_total) * $k1;
+            $data[$row['user_id']]['row_details'][$week]['overtime'] += $total_hours - $time;
+            $data[$row['user_id']]['row_details'][$week]['overtime_salary'] += ($total_hours - $time) * $k2;
+
+            //calculate total per day and salary
+            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['normal_hours'] = $time;
+            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['normal_salary'] = $time * $k1;
+            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['overtime'] = $total_hours - $time;
+            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['overtime_salary'] = ($total_hours - $time) * $k2;
 
 
-        //ruajme daten
-        $checkins[$row['user_id']][$week]['dates'][$row['check_in_date']]['check_in_date'] = $row['check_in_date'];
-        //salary
-        $checkins[$row['user_id']][$week]['normal_hours']=0;
-        $checkins[$row['user_id']][$week]['normal_salary']=0;
-        $checkins[$row['user_id']][$week]['overtime'] =0;
-        $checkins[$row['user_id']][$week]['overtime_salary'] =0;
-        $checkins[$row['user_id']][$week]['total_hours']=0;
-        $checkins[$row['user_id']][$week]['total_salary']=0;
-        $checkins[$row['user_id']][$week]['week']=$week;
-        $checkins[$row['user_id']][$week]['user_id']=$row['user_id'];
+          //Kjo i bie qe kemi vetem overtime, kshu qe shtojme vetem differencen e checkins
+        } else if ($total_hours > $time && $prev_total > $time) {
 
+            $data[$row['user_id']]['overtime'] += $checkins_difference;
+            $data[$row['user_id']]['overtime_salary'] += $checkins_difference * $k2;
 
+            $data[$row['user_id']]['row_details'][$week]['overtime'] += $checkins_difference;
+            $data[$row['user_id']]['row_details'][$week]['overtime_salary'] += $checkins_difference * $k2;
 
-        //shtojme diferencen ne ore checkout-checkin per cdo checkings qe kemi brenda nje date
-        $checkins[$row['user_id']][$week]['dates'][$row['check_in_date']]['hours_per_date'] += $checkins_difference;
-
-        //Llogarisimin sa ka punuar overtime
-        $overtime = $checkins[$row['user_id']][$week]['dates'][$row['check_in_date']]['hours_per_date'] - $time;
-
-        /**
-         * Llogarisim sa ore ka punuar overtime brenda 1 dite
-         */
-        if ($overtime > 0) {
-            $checkins[$row['user_id']][$week]['dates'][$row['check_in_date']]['overtime'] = $overtime;
-            $checkins[$row['user_id']][$week]['dates'][$row['check_in_date']]['normal_hours'] = $time;
-
-
-
-        } else {
-            $checkins[$row['user_id']][$week]['dates'][$row['check_in_date']]['overtime'] = 0;
-            $checkins[$row['user_id']][$week]['dates'][$row['check_in_date']]['normal_hours'] += $checkins_difference;
+            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['overtime'] += $checkins_difference;
+            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['overtime_salary'] += $checkins_difference * $k2;
 
         }
-        $checkins[$row['user_id']][$week]['dates'][$row['check_in_date']]['k1'] = $k1;
-        $checkins[$row['user_id']][$week]['dates'][$row['check_in_date']]['k2'] = $k2;
+        $prev_total = $total_hours;
 
+
+        $data[$row['user_id']]['All_Dates_ARRAY'][$row['check_in_date']] = $row['check_in_date'];
+        $data[$row['user_id']]['nr_dates'] = count($data[$row['user_id']]['All_Dates_ARRAY']);
 
 
     }
 
+    $cal_data = array();
 
+
+    foreach ($data as &$user_details) {
+        //Calculate total hours
+        $user_details['total_hours_in'] = seconds2human($user_details['normal_hours']+$user_details['overtime']);
+        //Calculate total salary
+        $user_details['salary'] = "$ " . round($user_details['normal_salary'] + $user_details['overtime_salary'], 2);
+        //Calculate salary per hour
+        $user_details['salary_hour'] = "$ " . round(($user_details['normal_salary'] + $user_details['overtime_salary']) * 3600 / $user_details['total_hours_in'], 2);
+
+        //Convert hours into readable human language
+        $user_details['normal_hours'] = seconds2human($user_details['normal_hours']);
+        $user_details['overtime'] = seconds2human($user_details['overtime']);
+
+        //Do the same for normal hours's types.
+        $user_details['normal_hours_holiday'] = seconds2human($user_details['normal_hours_holiday']);
+        $user_details['normal_hours_weekend'] = seconds2human($user_details['normal_hours_weekend']);
+        $user_details['normal_hours_normal'] = seconds2human($user_details['normal_hours_normal']);
+
+        //Convert salary into string.
+        $user_details['normal_salary'] = "$ " . round($user_details['normal_salary'], 2);
+        $user_details['overtime_salary'] = "$ " . round($user_details['overtime_salary'], 2);
+
+        //Show the user normal hours which include job done on weekends,holidays and normal dates.
+        $user_details['normal_hours'] = "Total: " .
+            $user_details['normal_hours'] . "<br> Normal: " .
+            $user_details['normal_hours_normal'] . "<br> Weekends: " .
+            $user_details['normal_hours_weekend'] . "<br> Holidays: " .
+            $user_details['normal_hours_holiday'];
+
+        $week_array = [];
+        foreach ($user_details['row_details'] as &$week_details) {
+
+            //Calculate totalhours in,salary and salary per hour
+            $week_details['total_hours'] = seconds2human(  $week_details['normal_hours']+$week_details['overtime']);
+            $week_details['salary'] = "$ " . round($week_details['normal_salary'] + $week_details['overtime_salary'], 2);
+            $week_details['salary_hour'] = "$ " . round(($week_details['normal_salary'] + $week_details['overtime_salary']) * 3600 / $week_details['total_hours'], 2);
+
+            //Convert hours into seconds and calculate normal and overtime salary
+            $week_details['normal_hours'] = seconds2human($week_details['normal_hours']);
+            $week_details['normal_salary'] = "$ " . round($week_details['normal_salary'], 2);
+            $week_details['overtime'] = seconds2human($week_details['overtime']);
+            $week_details['overtime_salary'] = "$ " . round($week_details['overtime_salary'], 2);
+
+            $day_array = [];
+            foreach ($week_details['row_details'] as &$day_details) {
+
+                //Calculate totalhours in,salary and salary per hour
+                $day_details['total_hours'] = seconds2human($day_details['normal_hours']+ $day_details['overtime']);
+                $day_details['salary'] = "$ " . round($day_details['normal_salary'] + $day_details['overtime_salary'], 2);
+                $day_details['salary_hour'] = "$ " . round(($day_details['normal_salary'] + $day_details['overtime_salary']) * 3600 / $day_details['total_hours'], 2);
+
+                //Convert hours into seconds and calculate normal and overtime salary
+                $day_details['normal_hours'] = seconds2human($day_details['normal_hours']);
+                $day_details['normal_salary'] = "$ " . round($day_details['normal_salary'], 2);
+                $day_details['overtime'] = seconds2human($day_details['overtime']);
+                $day_details['overtime_salary'] = "$ " . round($day_details['overtime_salary'], 2);
+
+                $day_array[] = $day_details;
+            }
+
+            $week_details['row_details'] = $day_array;
+            $week_array[] = $week_details;
+        }
+
+        $cal_data[] = $user_details;
+        $cal_data[$i]['row_details'] = $week_array;
+
+        $i++;
+    }
 
 
 //Nese nuk kemi te dhena, i dergojm array bosh.
@@ -373,7 +420,7 @@ if ($_POST['action'] == 'load_table') {
     }
 
     //Ja dergojme response-in backendit
-    $response = array("draw" => intval($draw), "iTotalRecords" => $totalRecords, "iTotalDisplayRecords" => $totalRecordwithFilter, "aaData" => $data, "checkinsData" => $checkins);
+    $response = array("draw" => intval($draw), "iTotalRecords" => $totalRecords, "iTotalDisplayRecords" => $totalRecordwithFilter, "aaData" => $cal_data);
     echo json_encode($response);
     exit;
 }

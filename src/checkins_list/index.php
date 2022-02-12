@@ -37,8 +37,6 @@ if ($_SESSION['role']!="Admin"){
                 <table id="checkins_list" class="display" style="width:100%">
                     <thead>
                     <tr>
-
-
                         <th>Show</th>
                         <th>Name</th>
                         <th>Dates</th>
@@ -49,8 +47,6 @@ if ($_SESSION['role']!="Admin"){
                     </thead>
                     <tfoot>
                     <tr>
-
-
                         <th>Show</th>
                         <th>Name</th>
                         <th>Dates</th>

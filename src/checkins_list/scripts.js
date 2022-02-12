@@ -36,7 +36,7 @@ $(function() {
         }, {
             data: 'first_name'
         }, {
-            data: 'dates', orderable: false
+            data: 'nr_dates', orderable: false
         }, {
             data: 'normal_hours', orderable: false
         }, {
@@ -75,19 +75,21 @@ $(function() {
             /**
              * End of search delay
              */
+
+            /**
+             * Clears opened tables array which auto showed all previously opened tables
+             */
+            tbl1.on('page.dt', function() {
+                openedTables.clear();
+            });
+
+            $('#applyFilter').on('click', function() {
+                tbl1.draw();
+            });
         }
     });
 
-    /**
-     * Clears opened tables array which auto showed all previously opened tables
-     */
-    tbl1.on('page.dt', function() {
-        openedTables.clear();
-    });
 
-    $('#applyFilter').on('click', function() {
-        tbl1.draw();
-    });
 
     $('#checkins_list tbody').on('click', 'tr td.details-control1', function(event) {
         var tr = $(this).closest('tr');

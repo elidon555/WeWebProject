@@ -16,7 +16,7 @@ function seconds2human($ss) {
     $h = floor($ss / 3600);
 
     if ($ss>=3600) {
-        return "$h hours";
+        return "$h";
     }
 
     else if($ss==0){
@@ -31,9 +31,9 @@ function seconds2human($ss) {
 
 function x_week_range($date) {
     $ts = strtotime($date);
-    $start = (date('w', $ts) == 0) ? $ts : strtotime('last last sunday', $ts);
+    $start = (date('w', $ts) == 0) ? $ts : strtotime('monday this week', $ts);
     return array(date('d-M-y', $start),
-        date('d-M-y', strtotime('next saturday', $start)));
+        date('d-M-y', strtotime('sunday this week', $start)));
 }
 
 //Upload image func

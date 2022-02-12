@@ -139,7 +139,6 @@ if ($_POST['action'] == 'load_table') {
     $totalRecordwithFilter = $records_with_ftl['allcount'];
 
 
-
     //        $query_data .= "AND "
 
     /**
@@ -218,7 +217,18 @@ if ($_POST['action'] == 'load_table') {
 
         $total_hours += $checkins_difference;
 
-        $data[$row['user_id']]['row_details'][$row['check_in_date']]['row_details'][] = array('check_in_date' => $row['check_in_date'], 'check_in_hour' => $row['check_in_hour'], 'check_out_hour' => $row['check_out_hour'], 'check_out_date' => $row['check_out_date']);
+        $temp_day_details = array();
+        $temp_day_details['check_in_date'] = $row['check_in_date'];
+        $temp_day_details['check_in_hour'] = $row['check_in_hour'];
+        $temp_day_details['check_out_date'] = $row['check_out_date'];
+        $temp_day_details['check_out_hour'] = $row['check_out_hour'];
+
+
+
+
+        //Shtojme
+        $data[$row['user_id']]['row_details'][$row['check_in_date']]['row_details'][] = $temp_day_details;
+
 
         //shtojme user id se na nevojitet
         $data[$row['user_id']]['row_details'][$row['check_in_date']]['user_id'] = $row['user_id'];
@@ -255,6 +265,10 @@ if ($_POST['action'] == 'load_table') {
         //Ruajme totalin per iterimin e ardhshem
         $prev_total = $total_hours;
 
+        //Numrojme datat
+        $data[$row['user_id']]['All_Dates_ARRAY'][$row['check_in_date']] = $row['check_in_date'];
+        $data[$row['user_id']]['nr_dates'] = count($data[$row['user_id']]['All_Dates_ARRAY']);
+
         if (is_array($data[$row['user_id']]['row_details'][$row['check_in_date']]['row_details'])) {
             $data[$row['user_id']]['row_details'][$row['check_in_date']]['count'] = sizeof($data[$row['user_id']]['row_details'][$row['check_in_date']]['row_details']);
             $data[$row['user_id']]['dates'] += 1;
@@ -267,25 +281,35 @@ if ($_POST['action'] == 'load_table') {
     $i = 0;
 
 
+
+
+
+
+
     foreach ($data as &$value) {
 
         $value['total_hours_in'] = seconds2human($value['total_hours_in']);
         $value['overtime'] = seconds2human($value['overtime']);
         $value['normal_hours'] = seconds2human($value['normal_hours']);
 
-        $details1 = [];
+        $week_array = [];
 
-        foreach ($value['row_details'] as &$details) {
+        foreach ($value['row_details'] as &$week_details) {
 
-            $details['normal_hours'] = seconds2human($details['normal_hours']);
-            $details['overtime'] = seconds2human($details['overtime']);
-            $details['hours_per_date'] = seconds2human($details['hours_per_date']);
+            $week_details['normal_hours'] = seconds2human($week_details['normal_hours']);
+            $week_details['overtime'] = seconds2human($week_details['overtime']);
+            $week_details['hours_per_date'] = seconds2human($week_details['hours_per_date']);
 
-            $details1[] = $details;
 
+
+
+
+
+
+            $week_array[] = $week_details;
         }
         $cal_data[] = $value;
-        $cal_data[$i]['row_details'] = $details1;
+        $cal_data[$i]['row_details'] = $week_array;
 
         $i++;
     }

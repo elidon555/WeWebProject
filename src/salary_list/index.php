@@ -40,12 +40,12 @@ if ($_SESSION['role'] != "Admin") {
                         <th>Name</th>
                         <th>Dates</th>
                         <th>Normal hours</th>
-                        <th>N Salary</th>
-                        <th>Overtime</th>
-                        <th>O Salary</th>
+                        <th>Normal Salary</th>
+                        <th>Overtime hours</th>
+                        <th>Overtime Salary</th>
                         <th>Total hours</th>
                         <th>Pay/Hour</th>
-                        <th>Salary</th>
+                        <th>Salary/total</th>
                     </tr>
                     </thead>
                     <tfoot>
@@ -54,12 +54,12 @@ if ($_SESSION['role'] != "Admin") {
                         <th>Name</th>
                         <th>Dates</th>
                         <th>Normal hours</th>
-                        <th>N Salary</th>
+                        <th>Normal Salary</th>
                         <th>Overtime</th>
-                        <th>O Salary</th>
+                        <th>Overtime Salary</th>
                         <th>Total hours</th>
                         <th>Pay/Hour</th>
-                        <th>Salary</th>
+                        <th>Salary/total</th>
                     </tr>
                     </tfoot>
                 </table>
