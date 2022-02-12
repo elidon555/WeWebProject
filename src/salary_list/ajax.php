@@ -208,12 +208,15 @@ if ($_POST['action'] == 'load_table') {
     while ($row = mysqli_fetch_assoc($result_data)) {
 
         $date = $row['check_in_date'];
-        $week = date("W", strtotime($row['check_in_date']));
 
-        $week_start = date("d-m-y", strtotime('monday this week', strtotime($date)));
-        $week_end = date("d-m-y", strtotime('sunday this week', strtotime($date)));
+        $week = date("d-m-y", strtotime('sunday this week', strtotime($date))) . "<br>";
+        $week .= date("d-m-y", strtotime('monday this week', strtotime($date)));
 
-        $data[$row['user_id']]['row_details'][$week]['date'] = $week_end . "<br>" . $week_start;
+        $month = date("M-y", strtotime($row['check_in_date']));
+
+
+        $data[$row['user_id']]['row_details'][$month]['date'] = $month;
+        $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['date'] = $week;
         /**
          * If id or date changes,prevTotal and total resets back to 0
          */
@@ -242,9 +245,9 @@ if ($_POST['action'] == 'load_table') {
         /**
          * Let's setup the coefficients
          */
-        $month = substr($row['check_in_date'], 5);
+        $month_test = substr($row['check_in_date'], 5);
         $sph = 10 / 3600;
-        if (in_array($month, $holiday_array)) {
+        if (in_array($month_test, $holiday_array)) {
             $k1 = 1.5 * $sph;
             $k2 = 2 * $sph;
         } else if (isWeekend($row['check_in_date'])) {
@@ -257,7 +260,7 @@ if ($_POST['action'] == 'load_table') {
         /**
          * Llogarisimin differencen per cdocheckin dhe nese eshte negative, I shtojme 24 ore se ashtu I bie.
          */
-        $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['date'] = $row['check_in_date'];
+        $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['row_details'][$row['check_in_date']]['date'] = $row['check_in_date'];
         $checkins_difference = time_to_sec($row['check_out_hour']) - time_to_sec($row['check_in_hour']);
 
         if ($checkins_difference < 0) {
@@ -282,11 +285,14 @@ if ($_POST['action'] == 'load_table') {
             $data[$row['user_id']]['normal_hours'] += $checkins_difference;
             $data[$row['user_id']]['normal_salary'] += $checkins_difference * $k1;
 
-            $data[$row['user_id']]['row_details'][$week]['normal_hours'] += $checkins_difference;
-            $data[$row['user_id']]['row_details'][$week]['normal_salary'] += $checkins_difference * $k1;
+            $data[$row['user_id']]['row_details'][$month]['normal_hours'] += $checkins_difference;
+            $data[$row['user_id']]['row_details'][$month]['normal_salary'] += $checkins_difference * $k1;
 
-            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['normal_hours'] += $checkins_difference;
-            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['normal_salary'] += $checkins_difference * $k1;
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['normal_hours'] += $checkins_difference;
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['normal_salary'] += $checkins_difference * $k1;
+
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['row_details'][$row['check_in_date']]['normal_hours'] += $checkins_difference;
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['row_details'][$row['check_in_date']]['normal_salary'] += $checkins_difference * $k1;
 
             //Kjo ekzekutohet vetem 1 here per dite
             //Nese Totali eshte me i madh se orari normal, por totali i checkinit te kaluar ishte me i vogel se orari normal
@@ -306,30 +312,43 @@ if ($_POST['action'] == 'load_table') {
             $data[$row['user_id']]['overtime'] += ($total_hours - $time);
             $data[$row['user_id']]['overtime_salary'] += ($total_hours - $time) * $k2;
 
+            //calculate total per month and salary
+            $data[$row['user_id']]['row_details'][$month]['normal_hours'] += $time - $prev_total;
+            $data[$row['user_id']]['row_details'][$month]['normal_salary'] += ($time - $prev_total) * $k1;
+            $data[$row['user_id']]['row_details'][$month]['overtime'] += $total_hours - $time;
+            $data[$row['user_id']]['row_details'][$month]['overtime_salary'] += ($total_hours - $time) * $k2;
+
             //calculate total per week and salary
-            $data[$row['user_id']]['row_details'][$week]['normal_hours'] += $time - $prev_total;
-            $data[$row['user_id']]['row_details'][$week]['normal_salary'] += ($time - $prev_total) * $k1;
-            $data[$row['user_id']]['row_details'][$week]['overtime'] += $total_hours - $time;
-            $data[$row['user_id']]['row_details'][$week]['overtime_salary'] += ($total_hours - $time) * $k2;
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['normal_hours'] += $time - $prev_total;
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['normal_salary'] += ($time - $prev_total) * $k1;
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['overtime'] += $total_hours - $time;
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['overtime_salary'] += ($total_hours - $time) * $k2;
 
             //calculate total per day and salary
-            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['normal_hours'] = $time;
-            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['normal_salary'] = $time * $k1;
-            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['overtime'] = $total_hours - $time;
-            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['overtime_salary'] = ($total_hours - $time) * $k2;
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['row_details'][$row['check_in_date']]['normal_hours'] = $time;
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['row_details'][$row['check_in_date']]['normal_salary'] = $time * $k1;
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['row_details'][$row['check_in_date']]['overtime'] = $total_hours - $time;
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['row_details'][$row['check_in_date']]['overtime_salary'] = ($total_hours - $time) * $k2;
 
 
-          //Kjo i bie qe kemi vetem overtime, kshu qe shtojme vetem differencen e checkins
+            //Kjo i bie qe kemi vetem overtime, kshu qe shtojme vetem differencen e checkins
         } else if ($total_hours > $time && $prev_total > $time) {
 
+            //calculate total per user hours and salary
             $data[$row['user_id']]['overtime'] += $checkins_difference;
             $data[$row['user_id']]['overtime_salary'] += $checkins_difference * $k2;
 
-            $data[$row['user_id']]['row_details'][$week]['overtime'] += $checkins_difference;
-            $data[$row['user_id']]['row_details'][$week]['overtime_salary'] += $checkins_difference * $k2;
+            //calculate total per month and salary
+            $data[$row['user_id']]['row_details'][$month]['overtime'] += $checkins_difference;
+            $data[$row['user_id']]['row_details'][$month]['overtime_salary'] += $checkins_difference * $k2;
 
-            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['overtime'] += $checkins_difference;
-            $data[$row['user_id']]['row_details'][$week]['row_details'][$row['check_in_date']]['overtime_salary'] += $checkins_difference * $k2;
+            //calculate total per week and salary
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['overtime'] += $checkins_difference;
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['overtime_salary'] += $checkins_difference * $k2;
+
+            //calculate total per day and salary
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['row_details'][$row['check_in_date']]['overtime'] += $checkins_difference;
+            $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['row_details'][$row['check_in_date']]['overtime_salary'] += $checkins_difference * $k2;
 
         }
         $prev_total = $total_hours;
@@ -337,24 +356,23 @@ if ($_POST['action'] == 'load_table') {
 
         $data[$row['user_id']]['All_Dates_ARRAY'][$row['check_in_date']] = $row['check_in_date'];
         $data[$row['user_id']]['nr_dates'] = count($data[$row['user_id']]['All_Dates_ARRAY']);
-
-
     }
+
 
     $cal_data = array();
 
-
     foreach ($data as &$user_details) {
         //Calculate total hours
-        $user_details['total_hours_in'] = seconds2human($user_details['normal_hours']+$user_details['overtime']);
+        $temp=$user_details['normal_hours'] + $user_details['overtime'];
         //Calculate total salary
         $user_details['salary'] = "$ " . round($user_details['normal_salary'] + $user_details['overtime_salary'], 2);
         //Calculate salary per hour
-        $user_details['salary_hour'] = "$ " . round(($user_details['normal_salary'] + $user_details['overtime_salary']) * 3600 / $user_details['total_hours_in'], 2);
+        $user_details['salary_hour'] = "$ " . round(($user_details['normal_salary'] + $user_details['overtime_salary']) * 3600 / $temp, 2);
 
         //Convert hours into readable human language
         $user_details['normal_hours'] = seconds2human($user_details['normal_hours']);
         $user_details['overtime'] = seconds2human($user_details['overtime']);
+        $user_details['total_hours_in'] = seconds2human($temp);
 
         //Do the same for normal hours's types.
         $user_details['normal_hours_holiday'] = seconds2human($user_details['normal_hours_holiday']);
@@ -366,49 +384,76 @@ if ($_POST['action'] == 'load_table') {
         $user_details['overtime_salary'] = "$ " . round($user_details['overtime_salary'], 2);
 
         //Show the user normal hours which include job done on weekends,holidays and normal dates.
-        $user_details['normal_hours'] = "Total: " .
-            $user_details['normal_hours'] . "<br> Normal: " .
-            $user_details['normal_hours_normal'] . "<br> Weekends: " .
-            $user_details['normal_hours_weekend'] . "<br> Holidays: " .
-            $user_details['normal_hours_holiday'];
+        $user_details['normal_hours'] = "Total: " . $user_details['normal_hours'] . "<br> Normal: " . $user_details['normal_hours_normal'] . "<br> Weekends: " . $user_details['normal_hours_weekend'] . "<br> Holidays: " . $user_details['normal_hours_holiday'];
 
-        $week_array = [];
-        foreach ($user_details['row_details'] as &$week_details) {
+
+        $month_array = [];
+        foreach ($user_details['row_details'] as &$month_details) {
+
+            $month_details['total_hours'] = $month_details['normal_hours'] + $month_details['overtime'];
 
             //Calculate totalhours in,salary and salary per hour
-            $week_details['total_hours'] = seconds2human(  $week_details['normal_hours']+$week_details['overtime']);
-            $week_details['salary'] = "$ " . round($week_details['normal_salary'] + $week_details['overtime_salary'], 2);
-            $week_details['salary_hour'] = "$ " . round(($week_details['normal_salary'] + $week_details['overtime_salary']) * 3600 / $week_details['total_hours'], 2);
+
+            $month_details['salary'] = "$ " . round($month_details['normal_salary'] + $month_details['overtime_salary'], 2);
+            $month_details['salary_hour'] = "$ " . round(($month_details['normal_salary'] + $month_details['overtime_salary']) * 3600 / $month_details['total_hours'], 2);
 
             //Convert hours into seconds and calculate normal and overtime salary
-            $week_details['normal_hours'] = seconds2human($week_details['normal_hours']);
-            $week_details['normal_salary'] = "$ " . round($week_details['normal_salary'], 2);
-            $week_details['overtime'] = seconds2human($week_details['overtime']);
-            $week_details['overtime_salary'] = "$ " . round($week_details['overtime_salary'], 2);
+            $month_details['total_hours'] = seconds2human($month_details['total_hours']);
+            $month_details['normal_hours'] = seconds2human($month_details['normal_hours']);
+            $month_details['normal_salary'] = "$ " . round($month_details['normal_salary'], 2);
+            $month_details['overtime'] = seconds2human($month_details['overtime']);
+            $month_details['overtime_salary'] = "$ " . round($month_details['overtime_salary'], 2);
 
-            $day_array = [];
-            foreach ($week_details['row_details'] as &$day_details) {
+
+            $week_array = [];
+            foreach ($month_details['row_details'] as &$week_details) {
+
+                $temp = $week_details['normal_hours'] + $week_details['overtime'];
 
                 //Calculate totalhours in,salary and salary per hour
-                $day_details['total_hours'] = seconds2human($day_details['normal_hours']+ $day_details['overtime']);
-                $day_details['salary'] = "$ " . round($day_details['normal_salary'] + $day_details['overtime_salary'], 2);
-                $day_details['salary_hour'] = "$ " . round(($day_details['normal_salary'] + $day_details['overtime_salary']) * 3600 / $day_details['total_hours'], 2);
+                $week_details['total_hours'] = seconds2human($week_details['normal_hours'] + $week_details['overtime']);
+                $week_details['salary'] = "$ " . round($week_details['normal_salary'] + $week_details['overtime_salary'], 2);
+                $week_details['salary_hour'] = "$ " . round(($week_details['normal_salary'] + $week_details['overtime_salary']) * 3600 / $temp, 2);
 
                 //Convert hours into seconds and calculate normal and overtime salary
-                $day_details['normal_hours'] = seconds2human($day_details['normal_hours']);
-                $day_details['normal_salary'] = "$ " . round($day_details['normal_salary'], 2);
-                $day_details['overtime'] = seconds2human($day_details['overtime']);
-                $day_details['overtime_salary'] = "$ " . round($day_details['overtime_salary'], 2);
+                $week_details['total_hours'] = seconds2human($temp);
+                $week_details['normal_hours'] = seconds2human($week_details['normal_hours']);
+                $week_details['normal_salary'] = "$ " . round($week_details['normal_salary'], 2);
+                $week_details['overtime'] = seconds2human($week_details['overtime']);
+                $week_details['overtime_salary'] = "$ " . round($week_details['overtime_salary'], 2);
 
-                $day_array[] = $day_details;
+
+                $day_array = [];
+                foreach ($week_details['row_details'] as &$day_details) {
+
+                    $temp = $day_details['normal_hours'] + $day_details['overtime'];
+
+                    $day_details['salary'] = "$ " . round($day_details['normal_salary'] + $day_details['overtime_salary'], 2);
+                    $day_details['salary_hour'] = "$ " . round(($day_details['normal_salary'] + $day_details['overtime_salary']) * 3600 / $temp, 2);
+
+
+                    $day_details['total_hours'] = seconds2human($temp);
+                    $day_details['normal_hours'] = seconds2human($day_details['normal_hours']);
+                    $day_details['overtime'] = seconds2human($day_details['overtime']);
+
+
+                    $day_details['overtime_salary'] = "$ " . round($day_details['overtime_salary'], 2);
+                    $day_details['normal_salary'] = "$ " . round($day_details['normal_salary'], 2);
+
+
+                   $day_array[]=$day_details;
+                }
+
+                $week_details['row_details'] = $day_array;
+                $week_array[] = $week_details;
             }
 
-            $week_details['row_details'] = $day_array;
-            $week_array[] = $week_details;
+            $month_details['row_details'] = $week_array;
+            $month_array[] = $month_details;
         }
 
         $cal_data[] = $user_details;
-        $cal_data[$i]['row_details'] = $week_array;
+        $cal_data[$i]['row_details'] = $month_array;
 
         $i++;
     }

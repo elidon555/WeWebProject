@@ -29,13 +29,6 @@ function seconds2human($ss) {
 
 }
 
-function x_week_range($date) {
-    $ts = strtotime($date);
-    $start = (date('w', $ts) == 0) ? $ts : strtotime('monday this week', $ts);
-    return array(date('d-M-y', $start),
-        date('d-M-y', strtotime('sunday this week', $start)));
-}
-
 //Upload image func
 function uploadImage($file, $old_image)
 {

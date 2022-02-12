@@ -1,7 +1,7 @@
 $(function() {
     0;
 
-    //here we save the opened tbl2 rows in array
+    //here we save the opened inner_table rows in array
     //so when user filters date, it auto opens them
     var openedTables = new Set();
 
@@ -91,20 +91,20 @@ $(function() {
 
             tr.addClass('details');
 
-            row.child(format_tbl_html('tableclass2')).show();
-            initialize_table(row.data().row_details, 'tableclass2');
+            row.child(format_tbl_html(2)).show();
+            initialize_table(row.data().row_details, 2);
 
             tr.find('.fas').attr('class', 'fas fa-minus-circle fa-lg text-danger');
         }
     });
 
 
-    function format_tbl_html(table_class) {
+    function format_tbl_html(i) {
         /**
          * Bejme draw tabelen e meposhte
          */
         return `
-                <table class='innerTable ${table_class} display' style='width:100%'>
+                <table class='innerTable tableclass${i} display' style='width:100%'>
                    <thead>
                         <tr>
                           <th></th>
@@ -125,26 +125,28 @@ $(function() {
     /**
      * Inicializojme tabelen e dyte
      */
-    function initialize_table(data, tableclass) {
+    function initialize_table(data, i) {
         //Ruajme te dhena me id-ne e userit si key
 
-        if (tableclass === 'tableclass2') {
-          var bool=true;
+        if (`tableclass${i}` === `tableclass4`) {
+
+            var bool = false;
 
         } else {
-          bool = false;
+             bool=true;
         }
 
         //inicializojme tabelen dytesore
-        var tbl2 = $(`.${tableclass}`).DataTable({
+        var inner_table = $(`.tableclass${i}`).DataTable({
             pageLength: 5,
             lengthMenu: [5, 20, 50, 75, 100],
+            retrieve:true,
             paging:bool,
             searching: bool,
             info:bool,
             data: data, columns:
                 [{
-                    className: 'details-control2 ',
+                    className: `details-control${i}`,
                     orderable: false,
                     data: null,
                     width: '5%',
@@ -169,20 +171,21 @@ $(function() {
             }]
         });
 
-       if (tableclass==='tableclass2') {
-           second_table_details_control(tbl2);
-       }
-       else {
-           tbl2.column(0).visible(false);
-       }
+           if (`tableclass${i}`===`tableclass4`){
+               inner_table.column(0).visible(false);
+           }
+           else {
+               second_table_details_control(inner_table, i);
+           }
     }
 
 
-    function second_table_details_control(tbl2) {
-        $('.tableclass2 tbody').on('click', 'td.details-control2', function(event) {
+    function second_table_details_control(inner_table,i) {
+        $(`.tableclass${i} tbody`).on('click', `td.details-control${i}`, function(event) {
+            console.log(i);
             var tr = $(this).closest('tr');
 
-            var row = tbl2.row(tr);
+            var row = inner_table.row(tr);
 
             if (row.child.isShown()) {
                 // Nese rresht eshte i hapur, e mbyllim
@@ -192,9 +195,9 @@ $(function() {
                 tr.find('.fa-minus-circle').attr('class', 'fas fa-plus-circle fa-lg text-dark');
             } else {
                 // initialize_table_3(user_id);
-                row.child(format_tbl_html('tableclass3')).show();
+                row.child(format_tbl_html(i+1)).show();
 
-                initialize_table(row.data().row_details,'tableclass3');
+                initialize_table(row.data().row_details,i+1);
 
                 //Ndryshim ikone ne show
                 tr.find('.fa-plus-circle').attr('class', 'fas fa-minus-circle fa-lg text-dark');
