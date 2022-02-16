@@ -1,9 +1,8 @@
 <?php include('../_partials/header.php');
-if ($_SESSION['role']!="Admin"){
+if ($_SESSION['role'] != "Admin") {
     header('location:' . SITEURL . '_config/errors/error403.html');
 }
 ?>
-
 
 
 <body id="body" style="font-family: Arial">
@@ -24,16 +23,13 @@ if ($_SESSION['role']!="Admin"){
                 <button id="applyFilter" class="btn btn-dark float-right">Apply Filter</button>
                 <div class="form-inline ">
 
-
                     <label>Date
                         <input class="form-control daterange" type="text" placeholder=""
                                value="">
                     </label>
 
-
-                    <br>
                 </div>
-
+                <br> <br>
                 <table id="checkins_list" class="display" style="width:100%">
                     <thead>
                     <tr>

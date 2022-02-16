@@ -7,15 +7,7 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../style.css?v=<?= time(); ?>">
-    <link rel="stylesheet" href="../_plugins/bootstrap.css">
-    <link rel="stylesheet" href="../_plugins/animate.css">
-    <script src="../_plugins/sweetalert2.all.min.js"></script>
-    <script src="../_plugins/sweetalert2.min.css"></script>
-    <link rel="stylesheet" type="text/css" href="../_plugins/daterangepicker.css"/>
+    <?php include_once('../_partials/visitor_header.php')?>
     <!-- here form validation -->
 
     <title>Login - System</title>
@@ -136,7 +128,7 @@
         } ?>
 
         <h6 class="form-text text-muted text-center">Already a member? <a style=" text-decoration: underline"
-                                                                          href="http://localhost/WeWebProject/login/">Log
+                                                                          href="http://localhost/WeWebProject/src/login/">Log
                 in!</a></h6>
         <br>
 

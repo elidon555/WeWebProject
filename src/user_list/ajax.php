@@ -2,10 +2,10 @@
 
 include_once('../_config/constants.php');
 
-if (!$_SESSION['id']){
+if (!$_SESSION['id']) {
     header('location:' . SITEURL . '/login');
 }
-if ($_SESSION['role']!="Admin"){
+if ($_SESSION['role'] != "Admin") {
     header('location:' . SITEURL . '_config/errors/error403.html');
 }
 
@@ -20,12 +20,12 @@ if ($_POST['action'] == "delete") {
 
        DELETE from users where user_id =' . $id . '
         ';
-
     /**
      * Test if we have no query errors!
      */
     try {
         //Execute the query to see if the user with that id exists
+        /** @var $conn */
         $result_checkins = mysqli_query($conn, $sql_delete_user);
         //get the count of users with that id, should be 1
         //if its not 1, it means that user doesnt exist!
@@ -48,6 +48,7 @@ if ($_POST['action'] == "delete") {
 if ($_POST['action'] == 'load_single_user') {
 
     //Marrin te dhenat nga perdoruesi
+    /** @var $conn */
     $id = mysqli_real_escape_string($conn, $_POST['id']);
 
     //Bejme query per te marre te dhenat e userit
@@ -71,7 +72,6 @@ if ($_POST['action'] == 'load_single_user') {
                         ';
 
 
-
     $result = mysqli_query($conn, $sql_get_user);
 
     if (!$result) {
@@ -91,16 +91,12 @@ if ($_POST['action'] == 'load_single_user') {
 
 if ($_GET['action'] == 'select2Filter') {
 
-    if (!$_GET['email']=="")
-    $email = mysqli_escape_string($conn, $_GET['email']);
-    else {
-        $email="";
-    }
+    $email = !$_GET['email'] == "" ? mysqli_escape_string($conn, $_GET['email']) : "";
 
-    if (!$_GET['phone_number']=="")
-    $phone_number = mysqli_escape_string($conn, $_GET['phone_number']);
+    if (!$_GET['phone_number'] == "")
+        $phone_number = mysqli_escape_string($conn, $_GET['phone_number']);
     else {
-        $phone_number="";
+        $phone_number = "";
     }
     $name = mysqli_escape_string($conn, $_GET['name']);
 
@@ -108,15 +104,15 @@ if ($_GET['action'] == 'select2Filter') {
     $searchQuery = " 
     SELECT user_id,$name 
     from users 
-    where        email LIKE '%".$email."%' 
-    AND   phone_number LIKE '%".$phone_number."%'
+    where        email LIKE '%" . $email . "%' 
+    AND   phone_number LIKE '%" . $phone_number . "%'
     LIMIT 10
     ";
 
 
-    $resultQuery = mysqli_query($conn,$searchQuery);
+    $resultQuery = mysqli_query($conn, $searchQuery);
 
-    if (!$resultQuery){
+    if (!$resultQuery) {
         echo json_encode(array("status" => 404, "message" => "Internal Server Error! " . __LINE__));
         exit;
     }
@@ -124,7 +120,7 @@ if ($_GET['action'] == 'select2Filter') {
     $json = [];
     while ($row = mysqli_fetch_assoc($resultQuery)) {
 
-        $json[] = [ 'id'=>$row['user_id'], 'text'=>$row[$name]];
+        $json[] = ['id' => $row['user_id'], 'text' => $row[$name]];
     }
 
     echo json_encode($json);
@@ -143,15 +139,15 @@ if ($_POST['action'] == 'load_table') {
     $columnIndex = $_POST['order'][0]['column'];
     $columnName = $_POST['columns'][$columnIndex]['data'];
     $columnSortOrder = $_POST['order'][0]['dir'];
-    if ($_POST['startDate']==null || $_POST['endDate']==null) {
-        $startDate=null;
-        $endDate=null;
+    if ($_POST['startDate'] == null || $_POST['endDate'] == null) {
+        $startDate = null;
+        $endDate = null;
+    } else {
+
+        /** @var $conn */
+        $startDate = mysqli_real_escape_string($conn, $_POST['startDate']);
+        $endDate = mysqli_real_escape_string($conn, $_POST['endDate']);
     }
-    else {
-
-
-    $startDate = mysqli_real_escape_string($conn,$_POST['startDate']);
-    $endDate = mysqli_real_escape_string($conn,$_POST['endDate']);}
 
 
     /**
@@ -292,7 +288,6 @@ if ($_POST['action'] == 'load_table') {
         $temp['date_of_birth'] = $row['date_of_birth'];
         $temp['phone_number'] = $row['phone_number'];
         $temp['actions'] = " ";
-
 
         $data[] = $temp;
     }

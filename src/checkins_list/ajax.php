@@ -123,10 +123,12 @@ if ($_POST['action'] == 'load_table') {
     /**
      * Numrin total te rekordeve duke aplikuar filtrin search
      */
-    $query_with_ftl = "SELECT COUNT(*) AS allcount 
+    $query_with_ftl =  "SELECT COUNT(distinct users.user_id) AS allcount 
                        FROM  users
-                       where first_name like '%" . $searchValue . "%' 
-                             OR last_name like '%" . $searchValue . "%'
+                        LEFT JOIN checkins on users.user_id = checkins.user_id
+                       WHERE check_in_date >= '" . $startDate . "' AND check_in_date<= '" . $endDate . "'
+                       AND (first_name like '%" . $searchValue . "%' 
+                             OR last_name like '%" . $searchValue . "%' )
                              ";
 
     $result_with_ftl = mysqli_query($conn, $query_with_ftl);
@@ -179,6 +181,7 @@ if ($_POST['action'] == 'load_table') {
         $error = mysqli_error($conn) . " " . __LINE__;
         empty_data($totalRecords, $error);
     }
+
 
 
     $time = time_to_sec('09:00:00');
@@ -246,7 +249,7 @@ if ($_POST['action'] == 'load_table') {
 
             $data[$row['user_id']]['row_details'][$row['check_in_date']]['normal_hours'] += $checkins_difference;
 
-        } else if ($total_hours > $time && $prev_total < $time) {
+        } else if ( $prev_total < $time) {
 
             $data[$row['user_id']]['overtime'] += $total_hours - $time;
             $data[$row['user_id']]['normal_hours'] += ($time - $prev_total);
@@ -254,7 +257,7 @@ if ($_POST['action'] == 'load_table') {
             $data[$row['user_id']]['row_details'][$row['check_in_date']]['overtime'] = $total_hours - $time;
             $data[$row['user_id']]['row_details'][$row['check_in_date']]['normal_hours'] = $time;
 
-        } else if ($total_hours > $time && $prev_total > $time) {
+        } else if ( $prev_total > $time) {
 
             $data[$row['user_id']]['overtime'] += $total_hours - $prev_total;
 
@@ -280,12 +283,6 @@ if ($_POST['action'] == 'load_table') {
     $details1 = array();
     $i = 0;
 
-
-
-
-
-
-
     foreach ($data as &$value) {
 
         $value['total_hours_in'] = seconds2human($value['total_hours_in']);
@@ -299,12 +296,6 @@ if ($_POST['action'] == 'load_table') {
             $week_details['normal_hours'] = seconds2human($week_details['normal_hours']);
             $week_details['overtime'] = seconds2human($week_details['overtime']);
             $week_details['hours_per_date'] = seconds2human($week_details['hours_per_date']);
-
-
-
-
-
-
 
             $week_array[] = $week_details;
         }

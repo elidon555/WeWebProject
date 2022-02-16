@@ -5,7 +5,9 @@ include_once('../_config/constants.php');
 if (!$_SESSION['id']) {
     header('location:' . SITEURL . '_config/errors/error401.html');
 }
-include_once('../Config.php');
+require_once('../Config.php');
+require_once('../public/functions.php');
+
 //Authorization
 //Check if user is logged in or not
 
@@ -52,14 +54,18 @@ window.onerror=silentErrorHandler;
                 <?php if ($_SESSION['role'] == "Admin") : ?>
 
                     <li class="nav-item pl-1">
-                        <a class="nav-link" href="../salary_list"><i
-                                class="fas fa-list-ul fa-fw mr-1"></i>Salary List</a>
+                        <a class="nav-link" href="../salary_list_no_dt"><i
+                                class="fas fa-list-ul fa-fw mr-1"></i>Salary</a>
                     </li>
 
+                    <li class="nav-item pl-1">
+                        <a class="nav-link" href="../product_sales"><i
+                                class="fas fa-list-ul fa-fw mr-1"></i>Sales</a>
+                    </li>
 
                     <li class="nav-item pl-1">
                         <a class="nav-link" href="../user_list"><i
-                                class="fas fa-list-ul fa-fw mr-1"></i>User List</a>
+                                class="fas fa-list-ul fa-fw mr-1"></i>User </a>
                     </li>
 
                     <li class="nav-item pl-1">
@@ -68,7 +74,6 @@ window.onerror=silentErrorHandler;
                     </li>
 
                 <?php endif; ?>
-
 
                 <li class="nav-item pl-1">
                     <a class="nav-link" href="../profile/index.php"><i

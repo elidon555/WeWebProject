@@ -1,18 +1,7 @@
 <?php include('../_config/constants.php'); ?>
 
-
-
-
-
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../style.css?v=<?= filemtime('../_partials/style.css') ?>">
-    <link rel="stylesheet" href="../_plugins/bootstrap.css">
-    <link rel="stylesheet" href="../_plugins/animate.css">
-    <script src="../_plugins/sweetalert2.all.min.js"></script>
-    <script src="../_plugins/sweetalert2.min.css"></script>
+    <?php include('../_partials/visitor_header.php'); ?>
     <!-- here form validation -->
 
     <title>Login - System</title>
@@ -44,13 +33,13 @@
                 value="Login">Submit
         </button>
         <p></p>
-        <p class="text-center">Forgot password?</p>
+        <div class='text-center'><a href="#" data-target="#resetModal" data-toggle="modal">Forgot password?</a></div>
         <div style="border-bottom: 1px solid #dadde1;"></div>
         <br>
         <div class="text-center">
 
 
-            <a href="http://localhost/WeWebProject/signup/">
+            <a href="http://localhost/WeWebProject/src/signup/">
 
                 <button type="button" id="signup" class="btn btn-success btn-lg alignButtonCenter">
                     Create new account
@@ -60,6 +49,46 @@
     </form>
     <br>
     <p class="text-center">Created By Elidon </p>
+
+
+</div>
+
+<div id="resetModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h2 class='col-11 modal-title text-center'>Password Reset</h2>
+                <button type="button" class="close col-1" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="text-center">
+                                <p>If you have forgotten your password you can reset it here.</p>
+                                <div class="panel-body">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <input id='Email' class="form-control input-lg" placeholder="E-mail Address"
+                                                   name="email" type="email">
+                                        </div>
+                                        <input id='submitReset' class="btn btn-lg btn-primary btn-block"
+                                               value="Send reset link!" type="submit">
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12">
+                    <button class="btn btn-outline-secondary" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 

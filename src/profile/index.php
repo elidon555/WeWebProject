@@ -10,8 +10,6 @@ include('ajax.php');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
-
-
     <!-- here form validation -->
 
     <title>Login - System</title>
@@ -67,7 +65,9 @@ if (isset($_SESSION['no-access'])) {
     <div class="row">
         <div class="col-md-3 border-right">
             <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+
                 <div class="profile-pic">
+
                     <input id="loadedImage" type="image" class="rounded-circle mt-5" width="150px" height="150px"
                            src="../_photos/<?php echo $current_image ?>"
                     >
@@ -79,7 +79,9 @@ if (isset($_SESSION['no-access'])) {
                 <span class="font-weight-bold"><?php echo $first_name . " " . $last_name ?></span>
                 <span class="text-black-50"><?php echo $email ?></span>
                 <span> </span>
+
             </div>
+
         </div>
         <div class="col-md-5 border-right">
             <div class="p-3 py-5">
@@ -149,9 +151,7 @@ if (isset($_SESSION['no-access'])) {
 
                     </div>
 
-
                 </form>
-
             </div>
         </div>
 
@@ -196,7 +196,7 @@ if (isset($_SESSION['no-access'])) {
 
 <button id="edit_profile_btn" style="display:none"></button>
 
-<?php include_once('../_partials/footer.php')  ?>
+<?php include_once('../_partials/footer.php') ?>
 
 </body>
 <script type="text/javascript" src="scripts.js?v=<?= filemtime('scripts.js') ?>"></script>

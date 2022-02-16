@@ -11,64 +11,6 @@ include_once('../public/functions.php');
 /**
  *
  */
-if ($_POST['action'] == 'add_checking') {
-
-    $conn = mysqli_connect("localhost", "root", "root", "weweb");
-
-    /**
-     * Marri mte dhenat nga useri
-     */
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $checkin = mysqli_real_escape_string($conn, $_POST['checkin']);
-    $checkout = mysqli_real_escape_string($conn, $_POST['checkout']);
-    $checkinDate = mysqli_real_escape_string($conn, $_POST['checkin_date']);
-    $checkoutDate = mysqli_real_escape_string($conn, $_POST['checkout_date']);
-
-    if ($checkin == "" || $checkout == "") {
-        echo json_encode(array("status" => 404, "message" => "Error! Checkin is empty! " . __LINE__));
-        exit;
-    }
-
-    if ($checkinDate == "" || $checkoutDate == "") {
-        echo json_encode(array("status" => 404, "message" => "Error! Date can not be empty! " . __LINE__));
-        exit;
-    }
-
-    //Bejme query id-ne e userit.
-    $query_find_id = '
-                SELECT user_id from users where email="' . $email . '"
-       ';
-
-    $result_find_id = mysqli_query($conn, $query_find_id);
-
-    if (!$result_find_id) {
-        echo json_encode(array("status" => 404, "message" => "Internal Server Error " . __LINE__));
-        exit;
-    }
-
-    $row = mysqli_fetch_assoc($result_find_id);
-    $id = $row['user_id'];
-
-    //Bejme insert te dhenat ne database
-    $queryInsertCheckins = ' 
-            INSERT INTO checkins (user_id, check_in_date, check_in_hour, check_out_date, check_out_hour,created_at,updated_at)
-            VALUES (' . $id . ',"' . $checkinDate . '","' . $checkin . '", "' . $checkoutDate . '","' . $checkout . '", "' . date('Y-m-d H:i:s', time()) . '", "' . date('Y-m-d H:i:s', time()) . '"  );
-        ';
-    //Bejme querin dhe checkojme nese te dhenat u rregjistruan ne database
-    $statement = $conn->query($queryInsertCheckins);
-
-    if ($statement) {
-        echo json_encode(array("status" => 200, "message" => "Success! " . __LINE__));
-    } else {
-        echo json_encode(array("status" => 404, "message" => "Internal Server Error " . __LINE__));
-    }
-    exit();
-}
-/**
- * @param $time
- * @return int
- */
-
 if ($_POST['action'] == 'load_table') {
 
 
@@ -83,8 +25,10 @@ if ($_POST['action'] == 'load_table') {
         $columnName = "user_id";
     }
 
+    /** @var $conn */
     $searchValue = mysqli_real_escape_string($conn, $_POST['search']['value']);
     $searchQuery = " ";
+
 
     if ($searchValue != '') {
         $searchQuery = " AND (
@@ -103,13 +47,13 @@ if ($_POST['action'] == 'load_table') {
         $endDate = mysqli_real_escape_string($conn, $_POST['endDate']);
     }
 
-// Rsati kur zgjidhet All duhet te hiqen te gjitha limitimet ne pagination
+// Rasti kur zgjidhet All duhet te hiqen te gjitha limitimet ne pagination
     if ($limit_end == -1) {
         $pagination = "";
     } else {
         $pagination = "LIMIT " . $limit_start . ", " . $limit_end;
     }
-//    echo $searchQuery;
+
 
     /**
      * Merr numrin total te rekordeve pa aplikuar filtrat. Psh kur shfaqim 10/30 rekorde,
@@ -123,6 +67,7 @@ if ($_POST['action'] == 'load_table') {
     if (!$result_without_ftl) {
         $error = mysqli_error($conn) . " " . __LINE__;
         empty_data(0, $error);
+        exit;
     }
 
     $records = mysqli_fetch_assoc($result_without_ftl);
@@ -131,10 +76,13 @@ if ($_POST['action'] == 'load_table') {
     /**
      * Numrin total te rekordeve duke aplikuar filtrin search
      */
-    $query_with_ftl = "SELECT COUNT(*) AS allcount 
+
+    $query_with_ftl = "SELECT COUNT(distinct users.user_id) AS allcount 
                        FROM  users
-                       where first_name like '%" . $searchValue . "%' 
-                             OR last_name like '%" . $searchValue . "%'
+                        LEFT JOIN checkins on users.user_id = checkins.user_id
+                       WHERE check_in_date >= '" . $startDate . "' AND check_in_date<= '" . $endDate . "'
+                       AND (first_name like '%" . $searchValue . "%' 
+                             OR last_name like '%" . $searchValue . "%' )
                              ";
 
 
@@ -142,6 +90,7 @@ if ($_POST['action'] == 'load_table') {
     if (!$result_with_ftl) {
         $error = mysqli_error($conn) . " " . __LINE__;
         empty_data($totalRecords, $error);
+        exit;
     }
 
     $records_with_ftl = mysqli_fetch_assoc($result_with_ftl);
@@ -183,13 +132,11 @@ if ($_POST['action'] == 'load_table') {
     if (!$result_data) {
         $error = mysqli_error($conn) . " " . __LINE__;
         empty_data($totalRecords, $error);
+        exit;
     }
 
     //array ku do ruajme te dhenat qe ja cojme frontend-it
     $data = array();
-
-    //Array te cilin do cojme te dhenat ne front end
-    $checkins = array();
 
     //Deklarojme variablen e cila tregon orarin normal ne sekonda
     $time = time_to_sec('09:00:00');
@@ -215,6 +162,7 @@ if ($_POST['action'] == 'load_table') {
         $month = date("M-y", strtotime($row['check_in_date']));
 
 
+        $data[$row['user_id']]['row_details'][$month]['date'] = $month;
         $data[$row['user_id']]['row_details'][$month]['date'] = $month;
         $data[$row['user_id']]['row_details'][$month]['row_details'][$week]['date'] = $week;
         /**
@@ -270,7 +218,6 @@ if ($_POST['action'] == 'load_table') {
         //Incrementojme totalin me cdo checkin brenda 1 dite
         $total_hours += $checkins_difference;
 
-
         //Nese totali eshte me i vogel se orari normal, thjesht shtojme sa ka punuar per ate checkin specifik
         if ($total_hours < $time) {
 
@@ -281,6 +228,7 @@ if ($_POST['action'] == 'load_table') {
             } else {
                 $data[$row['user_id']]['normal_hours_normal'] += $checkins_difference;
             }
+
 
             $data[$row['user_id']]['normal_hours'] += $checkins_difference;
             $data[$row['user_id']]['normal_salary'] += $checkins_difference * $k1;
@@ -361,18 +309,20 @@ if ($_POST['action'] == 'load_table') {
 
     $cal_data = array();
 
+
     foreach ($data as &$user_details) {
         //Calculate total hours
-        $temp=$user_details['normal_hours'] + $user_details['overtime'];
-        //Calculate total salary
+        $temp = $user_details['normal_hours'] + $user_details['overtime'];
+
+        //Calculate totalhours in,salary and salary per hour
         $user_details['salary'] = "$ " . round($user_details['normal_salary'] + $user_details['overtime_salary'], 2);
-        //Calculate salary per hour
         $user_details['salary_hour'] = "$ " . round(($user_details['normal_salary'] + $user_details['overtime_salary']) * 3600 / $temp, 2);
+        $user_details['total_hours'] = seconds2human($temp);
 
         //Convert hours into readable human language
         $user_details['normal_hours'] = seconds2human($user_details['normal_hours']);
         $user_details['overtime'] = seconds2human($user_details['overtime']);
-        $user_details['total_hours_in'] = seconds2human($temp);
+
 
         //Do the same for normal hours's types.
         $user_details['normal_hours_holiday'] = seconds2human($user_details['normal_hours_holiday']);
@@ -383,22 +333,16 @@ if ($_POST['action'] == 'load_table') {
         $user_details['normal_salary'] = "$ " . round($user_details['normal_salary'], 2);
         $user_details['overtime_salary'] = "$ " . round($user_details['overtime_salary'], 2);
 
-        //Show the user normal hours which include job done on weekends,holidays and normal dates.
-        $user_details['normal_hours'] = "Total: " . $user_details['normal_hours'] . "<br> Normal: " . $user_details['normal_hours_normal'] . "<br> Weekends: " . $user_details['normal_hours_weekend'] . "<br> Holidays: " . $user_details['normal_hours_holiday'];
-
-
         $month_array = [];
         foreach ($user_details['row_details'] as &$month_details) {
 
-            $month_details['total_hours'] = $month_details['normal_hours'] + $month_details['overtime'];
+            $temp = $month_details['normal_hours'] + $month_details['overtime'];
 
             //Calculate totalhours in,salary and salary per hour
-
             $month_details['salary'] = "$ " . round($month_details['normal_salary'] + $month_details['overtime_salary'], 2);
-            $month_details['salary_hour'] = "$ " . round(($month_details['normal_salary'] + $month_details['overtime_salary']) * 3600 / $month_details['total_hours'], 2);
-
+            $month_details['salary_hour'] = "$ " . round(($month_details['normal_salary'] + $month_details['overtime_salary']) * 3600 / $temp, 2);
+            $month_details['total_hours'] = seconds2human($temp);
             //Convert hours into seconds and calculate normal and overtime salary
-            $month_details['total_hours'] = seconds2human($month_details['total_hours']);
             $month_details['normal_hours'] = seconds2human($month_details['normal_hours']);
             $month_details['normal_salary'] = "$ " . round($month_details['normal_salary'], 2);
             $month_details['overtime'] = seconds2human($month_details['overtime']);
@@ -441,7 +385,7 @@ if ($_POST['action'] == 'load_table') {
                     $day_details['normal_salary'] = "$ " . round($day_details['normal_salary'], 2);
 
 
-                   $day_array[]=$day_details;
+                    $day_array[] = $day_details;
                 }
 
                 $week_details['row_details'] = $day_array;
@@ -452,8 +396,11 @@ if ($_POST['action'] == 'load_table') {
             $month_array[] = $month_details;
         }
 
+        $hours_description = " Total: " . $user_details['normal_hours'] . "<br>  Normal: " . $user_details['normal_hours_normal'] . "<br>  Weekends: " . $user_details['normal_hours_weekend'] . "<br>  Holidays: " . $user_details['normal_hours_holiday'];
+
         $cal_data[] = $user_details;
         $cal_data[$i]['row_details'] = $month_array;
+        $cal_data[$i]['normal_hours_description'] = $hours_description;
 
         $i++;
     }
@@ -465,7 +412,11 @@ if ($_POST['action'] == 'load_table') {
     }
 
     //Ja dergojme response-in backendit
-    $response = array("draw" => intval($draw), "iTotalRecords" => $totalRecords, "iTotalDisplayRecords" => $totalRecordwithFilter, "aaData" => $cal_data);
+    $response = array(
+        "draw" => intval($draw),
+        "iTotalRecords" => $totalRecords,
+        "iTotalDisplayRecords" => $totalRecordwithFilter,
+        "aaData" => $cal_data);
     echo json_encode($response);
     exit;
 }

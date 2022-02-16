@@ -1,7 +1,7 @@
 <?php
 include_once('../_config/constants.php');
 
-if (!$_SESSION['id']){
+if (!$_SESSION['id']) {
     header('location:' . SITEURL . 'login');
 }
 
@@ -11,20 +11,19 @@ function isWeekend($date)
     return (date('N', strtotime($date)) >= 6);
 }
 
-function seconds2human($ss) {
-    $m = floor(($ss%3600)/60);
+function seconds2human($ss)
+{
+    $m = floor(($ss % 3600) / 60);
     $h = floor($ss / 3600);
 
-    if ($ss>=3600) {
+
+
+    if ($ss >= 3600) {
         return "$h";
-    }
-
-    else if($ss==0){
+    } else if ($ss == 0) {
         return "-";
-    }
-
-   else if ($ss<3600){
-       return  "$m min";
+    } else if ($ss < 3600) {
+        return "$m min";
     }
 
 }
@@ -86,6 +85,7 @@ function time_to_sec($time): int
 //Datatables funct
 function empty_data($total_records, $error = "")
 {
+    /** @var $draw */
     $response = array("draw" => intval($draw), "iTotalRecords" => $total_records, "iTotalDisplayRecords" => 0, "aaData" => array(), "error" => $error,);
     echo json_encode($response);
     exit;
@@ -110,6 +110,7 @@ if ($_POST['action'] == 'update||delete') {
      * Marrin te dhenat nga front endi
      */
     if (isset($_POST['id'])) {
+        /** @var $conn */
         $id = mysqli_real_escape_string($conn, $_POST['id']);
     }
     $first_name = ucfirst(mysqli_real_escape_string($conn, $_POST['first_name']));
@@ -344,5 +345,17 @@ if ($_POST['action'] == 'update||delete') {
 
     }
 }
+
+
+/**
+ * Funksion per printimin e vektorit
+ */
+
+function printArray($array)
+{
+    echo "<pre>";
+    print_r($array);
+}
+
 
 ?>

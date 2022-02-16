@@ -1,8 +1,8 @@
-$(function () {
+$(function() {
    window.edit = 1;
 
    // Mundeson file upload ne klikim te fotos
-   $('#loadedImage').click(function () {
+   $('#loadedImage').click(function() {
       $('#file').click();
    });
 
@@ -21,7 +21,7 @@ $(function () {
     */
 
    function edit_profile() {
-      $('#edit_profile_btn').on('click', function (event) {
+      $('#edit_profile_btn').on('click', function(event) {
          event.preventDefault();
          var error = 0;
 
@@ -49,7 +49,7 @@ $(function () {
             /**
              * Fusim te gjithe te dhenat ne nje FormGroup
              */
-            //store all data below
+               //store all data below
             var data = new FormData();
             data.append('file', files);
             data.append('action', 'update');
@@ -67,7 +67,7 @@ $(function () {
                contentType: false,
                processData: false,
                cache: false,
-               success: function (response) {
+               success: function(response) {
                   response = JSON.parse(response);
 
                   if (response.status != 200) {
@@ -88,7 +88,7 @@ $(function () {
    }
 
    function edit_password() {
-      $('#edit_password').on('click', function () {
+      $('#edit_password').on('click', function() {
          var error = 0;
 
          //Bejme validate password
@@ -97,54 +97,53 @@ $(function () {
          if (check(null, 'confirm_password')) error++;
 
          //Nese nuk kemi errore,procedojme
-         if (error == 0) {
-            /**
-             * Marrim te dhenat nga useri
-             */
-            //Marrim passwordin e vjeter
-            var old_password = $('#old_password').val();
-
-            //Marrim passwordin e ri
-            var password = $('#password').val();
-
-            //Marrim confirmimin e passwordit
-            var confirm_password = $('#confirm_password').val();
-
-            //I cojme back-endit te dhenat
-            $.ajax({
-               url: 'ajax.php',
-               method: 'POST',
-               data: {
-                  action: 'edit_pwd',
-                  old_password: old_password,
-                  password: password,
-                  confirm_password: confirm_password
-               },
-               cache: false,
-
-               success: function (response) {
-                  response = JSON.parse(response);
-
-                  //I tregojm userit response-in me mesazh
-                  if (response.status == 404) {
-                     Swal.fire('Error!', response['message'], 'error');
-                  } else {
-                     Swal.fire(
-                        'Success!',
-                        'Password successfully changed!',
-                        'success'
-                     );
-                  }
-               }
-            });
-            return true;
-         } else {
+         if (error !== 0) {
             $('#old_password,#password,#confirm_password').val('');
 
             Swal.fire('Please enter all the fields correctly!', '', 'error');
 
             return false;
          }
+         /**
+          * Marrim te dhenat nga useri
+          */
+            //Marrim passwordin e vjeter
+         var old_password = $('#old_password').val();
+
+         //Marrim passwordin e ri
+         var password = $('#password').val();
+
+         //Marrim confirmimin e passwordit
+         var confirm_password = $('#confirm_password').val();
+
+         //I cojme back-endit te dhenat
+         $.ajax({
+            url: 'ajax.php',
+            method: 'POST',
+            data: {
+               action: 'edit_pwd',
+               old_password: old_password,
+               password: password,
+               confirm_password: confirm_password
+            },
+            cache: false,
+
+            success: function(response) {
+               response = JSON.parse(response);
+
+               //I tregojm userit response-in me mesazh
+               if (response.status === 404) {
+                  Swal.fire('Error!', response['message'], 'error');
+               } else {
+                  Swal.fire(
+                     'Success!',
+                     'Password successfully changed!',
+                     'success'
+                  );
+               }
+            }
+         });
+         return true;
       });
    }
 });

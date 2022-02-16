@@ -1,110 +1,78 @@
 $(function() {
-    0;
 
-    //here we save the opened inner_table rows in array
-    //so when user filters date, it auto opens them
-    var openedTables = new Set();
-
-    // load_daterangepicker()
-    load_add_checkins();
-
-    /**
-     * Bejme inicializimin e tabeles kryesore
-     */
-    var tbl1 = $('#checkins_list').DataTable({
-        processing: true, serverSide: true, ordering: true, pageLength: 10, lengthMenu: [5, 10, 20], ajax: {
-            data: function(data) {
-                data.action = 'load_table';
-                //Ne momentin qe bejme load tabelen, backendi merr diten e sotme minus 30 dite
-
-                var date_s = $('.daterange');
-                var startDate = date_s
-                    .data('daterangepicker')
-                    .startDate.format('YYYY-MM-DD');
-                var endDate = date_s
-                    .data('daterangepicker')
-                    .endDate.format('YYYY-MM-DD');
-                data.startDate = startDate;
-                data.endDate = endDate;
-            }, url: 'ajax.php', type: 'post'
-        }, columns: [{
-            class: 'details-control1',
-            data: null,
-            defaultContent: '<i class="fas fa-plus-circle fa-lg text-success" style="font-size:25px" aria-hidden="true"></i>'
-        }, {
-            data: 'first_name'
-        }, {
-            data: 'nr_dates', orderable: false
-        }, {
-            data: 'normal_hours', orderable: false
-        }, {
-            data: 'normal_salary', orderable: false
-        }, {
-            data: 'overtime', orderable: false
-        }, {
-            data: 'overtime_salary', orderable: false
-        }, {
-            data: 'total_hours_in', orderable: false
-        }, {
-            data: 'salary_hour', orderable: false
-        }, {
-            data: 'salary', orderable: false
-        }]
-    });
-
-    var search_s = $('div.dataTables_filter input');
-    search_s.unbind();
-
-    search_s.on('keyup', delay(function(event) {
-        openedTables.clear();
-        tbl1.search(this.value).draw();
-    }, 500));
+   //here we save the opened inner_table rows in array
+   //so when user filters date, it auto opens them
+   let openedTables = new Set();
+   let normal_hours_details;
+   let table;
+   let table_s = $('.table_class1');
 
 
-    /**
-     * Clears opened tables array which auto showed all previously opened tables
-     */
-    tbl1.on('page.dt', function() {
-        openedTables.clear();
-    });
+   /**
+    * Bejme inicializimin e tabeles kryesore
+    */
+   table = table_s.DataTable({
+      searchDelay: 400,
+      processing: true,
+      serverSide: true,
+      ordering: true,
+      pageLength: 10,
+      lengthMenu: [5, 10, 20],
+      ajax: main_tbl_options,
+      'drawCallback': function(settings) {
+         normal_hours_details = settings.json['aaData'].map(x => x.normal_hours_description);
+      }, columns: [{
+         class: 'details-control1',
+         data: null,
+         defaultContent: '<i class="fas fa-plus-circle fa-lg" style="font-size:25px" aria-hidden="true"></i>' },
+         {
+         data: 'first_name'
+      }, {
+         data: 'nr_dates', orderable: false
+      }, {
+         data: 'normal_hours', orderable: false, className: 'hours_details'
+      }, {
+         data: 'normal_salary', orderable: false
+      }, {
+         data: 'overtime', orderable: false
+      }, {
+         data: 'overtime_salary', orderable: false
+      }, {
+         data: 'total_hours', orderable: false
+      }, {
+         data: 'salary_hour', orderable: false
+      }, {
+         data: 'salary', orderable: false
+      }]
+      /**
+       * When clickingnormal hours column, do this
+       */
+   });
+   table_s.on('click', '.hours_details', function() {
+      //Get index
+      let index = $(this).closest('tr').index();
+      //Get cookie
+      let hours_details = $('#hour_details');
+      //Change modal body template
+      hours_details.find('.modal-body').html(`<p>${normal_hours_details[index]}</p>`);
+      //Open it
+      hours_details.modal('toggle');
+   });
 
-    $('#applyFilter').on('click', function() {
-        tbl1.draw();
-        setTimeout(function() {
-            for (let item of openedTables.values()) $('.details-control1').eq(item).trigger('click');
-        }, 200);
-    });
+   /**
+    * Add delay on search
+    * Store previously opened tables on date search
+    */
+   searchFix_openedTables(table, openedTables);
 
-    $('#checkins_list tbody').on('click', 'tr td.details-control1', function(event) {
-        var tr = $(this).closest('tr');
-        var row = tbl1.row(tr);
-        var index = parseInt(row[0]) + 1;
+   table_detail_controls(table, 1);
 
-        if (row.child.isShown()) {
-            tr.removeClass('details');
-            row.child.hide();
-            //Ndryshojme ikonen kur tabela mbyllet
-            tr.find('.fas').attr('class', 'fas fa-plus-circle fa-lg text-success');
-            openedTables.delete(index + 1);
-        } else {
-            openedTables.add(index + 1);
-
-            tr.addClass('details');
-
-            row.child(format_tbl_html(2)).show();
-            initialize_table(row.data().row_details, 2);
-
-            tr.find('.fas').attr('class', 'fas fa-minus-circle fa-lg text-danger');
-        }
-    });
-
-
-    function format_tbl_html(i) {
-        /**
-         * Bejme draw tabelen e meposhte
-         */
-        return `
-                <table class='innerTable tableclass${i} display' style='width:100%'>
+   function format_tbl_html(i) {
+      /**
+       * Bejme draw tabelen e meposhte
+       */
+      return `
+                <table class='innerTable table_class${i} display' style='width:100%'>
                    <thead>
                         <tr>
                           <th></th>
@@ -120,134 +88,86 @@ $(function() {
                     </thead>
                 </table>
 `;
-    }
+   }
 
-    /**
-     * Inicializojme tabelen e dyte
-     */
-    function initialize_table(data, i) {
-        //Ruajme te dhena me id-ne e userit si key
+   /**
+    * Inicializojme tabelen e dyte
+    */
+   function initialize_table(data, i) {
 
-        if (`tableclass${i}` === `tableclass4`) {
-
-            var bool = false;
-
-        } else {
-             bool=true;
-        }
-
-        //inicializojme tabelen dytesore
-        var inner_table = $(`.tableclass${i}`).DataTable({
-            pageLength: 5,
-            lengthMenu: [5, 20, 50, 75, 100],
-            retrieve:true,
-            paging:bool,
-            searching: bool,
-            info:bool,
-            data: data, columns:
-                [{
-                    className: `details-control${i}`,
-                    orderable: false,
-                    data: null,
-                    width: '5%',
-                    defaultContent: '<i class="fas fa-plus-circle fa-lg text-dark" style="font-size:25px" aria-hidden="true"></i>'
-                },
-               {
-                className: 'dt-body-right', data: 'date'
+      //Ruajme te dhena me id-ne e userit si key
+      var bool;
+      (i === 4) ? bool = false : bool = true;
+      //inicializojme tabelen dytesore
+      let inner_table = $(`.table_class${i}`).DataTable({
+         pageLength: 5,
+         lengthMenu: [5, 20, 50, 75, 100],
+         retrieve: true,
+         paging: bool,
+         searching: bool,
+         info: bool,
+         data: data, columns:
+            [{
+               className: `details-control${i}`,
+               orderable: false,
+               data: null,
+               width: '1%',
+               defaultContent: '<i class="fas fa-plus-circle fa-lg text-dark" style="font-size:25px" aria-hidden="true"></i>'
             }, {
-                className: 'dt-body-right', data: 'normal_hours'
+               data: 'date'
             }, {
-                className: 'dt-body-right', data: 'normal_salary'
+               data: 'normal_hours'
             }, {
-                className: 'dt-body-right', data: 'overtime'
+               data: 'normal_salary'
             }, {
-                className: 'dt-body-right', data: 'overtime_salary'
+               data: 'overtime'
             }, {
-                className: 'dt-body-right', data: 'total_hours'
+               data: 'overtime_salary'
             }, {
-                className: 'dt-body-right', data: 'salary_hour'
+               data: 'total_hours'
             }, {
-                className: 'dt-body-right', data: 'salary'
+               data: 'salary_hour'
+            }, {
+               data: 'salary'
             }]
-        });
+      });
+      //Hide latest index's column
+      $(`.details-control4`).hide();
+      table_detail_controls(inner_table, i);
+   }
 
-           if (`tableclass${i}`===`tableclass4`){
-               inner_table.column(0).visible(false);
-           }
-           else {
-               second_table_details_control(inner_table, i);
-           }
-    }
+   function table_detail_controls(inner_table, i) {
+      $(`.table_class${i} tbody`).on('click', `td.details-control${i}`, function(event) {
 
+         let tr = $(this).closest('tr');
+         let row = inner_table.row(tr);
+         let index = parseInt(row[0]) + 1;
 
-    function second_table_details_control(inner_table,i) {
-        $(`.tableclass${i} tbody`).on('click', `td.details-control${i}`, function(event) {
-            console.log(i);
-            var tr = $(this).closest('tr');
+         if (row.child.isShown()) {
 
-            var row = inner_table.row(tr);
+            // Nese rresht eshte i hapur, e mbyllim
+            row.child.hide();
 
-            if (row.child.isShown()) {
-                // Nese rresht eshte i hapur, e mbyllim
-                row.child.hide();
-
-                //Ndryshim ikone ne hide
-                tr.find('.fa-minus-circle').attr('class', 'fas fa-plus-circle fa-lg text-dark');
-            } else {
-                // initialize_table_3(user_id);
-                row.child(format_tbl_html(i+1)).show();
-
-                initialize_table(row.data().row_details,i+1);
-
-                //Ndryshim ikone ne show
-                tr.find('.fa-plus-circle').attr('class', 'fas fa-minus-circle fa-lg text-dark');
+            //Ndryshim ikone ne hide
+            tr.find('.fa-minus-circle').attr('class', 'fas fa-plus-circle fa-lg text-dark');
+            if (i === 1) {
+               openedTables.delete(index + 1);
             }
-        });
-    }
+         }
+         //If hidden, show it
+         else {
+            if (i === 1) {
+               openedTables.add(index + 1);
+            }
+            // initialize_table_3(user_id);
+            row.child(format_tbl_html(i + 1)).show();
 
+            initialize_table(row.data().row_details, i + 1);
 
-    function load_add_checkins() {
-        $('#addCheckin').on('click', function(event) {
-            event.preventDefault();
+            //Ndryshim ikone ne show
+            tr.find('.fa-plus-circle').attr('class', 'fas fa-minus-circle fa-lg text-dark');
+         }
+      });
+   }
 
-            /**
-             * Marrim te dhenat nga useri
-             */
-            var email = $('#email').val();
-            var checkin = $('#checkin').val();
-            var checkout = $('#checkout').val();
-            var date_s = $('#daterange');
-
-            var checkin_date = date_s
-                .data('daterangepicker')
-                .startDate.format('YYYY-MM-DD');
-            var checkout_date = date_s
-                .data('daterangepicker')
-                .endDate.format('YYYY-MM-DD');
-
-            //I cojme ne backend
-            $.ajax({
-                url: 'ajax.php', method: 'POST', data: {
-                    action: 'add_checking',
-                    email: email,
-                    checkin: checkin,
-                    checkout: checkout,
-                    checkin_date: checkin_date,
-                    checkout_date: checkout_date
-                }, cache: false, beforeSend: function(xhr) {
-                    $('button').attr('disabled', 'disabled');
-                }, success: function(response) {
-                    response = JSON.parse(response);
-                    if (response.status != 200) {
-                        Swal.fire('Error!', response['message'], 'error');
-                    } else {
-                        Swal.fire('Success!', response['message'], 'success');
-                    }
-                    setTimeout(function() {
-                        $('button').prop('disabled', false);
-                    }, 1500);
-                }
-            });
-        });
-    }
 });

@@ -1,9 +1,6 @@
-$(function () {
-
+$(function() {
    window.edit = 1;
-
    single_date_picker();
-
    /**
     * Definojme regex-at per fushat me poshte
     */
@@ -13,9 +10,8 @@ $(function () {
     */
    full_check();
 
-   $('#signUp').on('submit', function (event) {
+   $('#signUp').on('submit', function(event) {
       event.preventDefault();
-
       /**
        * Marrim te henat qe ka plotesuar perdoruesi
        */
@@ -39,45 +35,45 @@ $(function () {
 
       //Nese nuk kemi errore,procedojme
       if (error === 0) {
-         //Postojme te dhenat ne backend
-         $.ajax({
-            url: '../public/functions.php',
-            method: 'POST',
-            data: {
-               action: 'update||delete',
-               terms: '1',
-               first_name: first_name,
-               last_name: last_name,
-               atesia: atesia,
-               date: date,
-               email: email,
-               phone_number: phone_number,
-               password: password,
-               confirm_password: confirm_password
-            },
-            cache: false,
-            dataType: 'json',
-      success: function (res) {
-               var response = res;
-
-               //I tregojme userit mesazhet e backend-it
-               if (response.status != 200) {
-                  Swal.fire('Error!', response['message'], 'error');
-               } else {
-                  Swal.fire(
-                     'Success!',
-                     'Your account registered successfully',
-                     'success'
-                  );
-                  localStorage.getItem('signup',"1")
-                  setTimeout(function () {
-                     window.location = '../login/index.php';
-                  }, 1500);
-               }
-            }
-         });
-      } else {
          Swal.fire('Error!', 'Please fill the fields as required', 'error');
+         return;
       }
+      //Postojme te dhenat ne backend
+      $.ajax({
+         url: '../public/functions.php',
+         method: 'POST',
+         data: {
+            action: 'update||delete',
+            terms: '1',
+            first_name: first_name,
+            last_name: last_name,
+            atesia: atesia,
+            date: date,
+            email: email,
+            phone_number: phone_number,
+            password: password,
+            confirm_password: confirm_password
+         },
+         cache: false,
+         dataType: 'json',
+         success: function(res) {
+            var response = res;
+
+            //I tregojme userit mesazhet e backend-it
+            if (response.status != 200) {
+               Swal.fire('Error!', response['message'], 'error');
+            } else {
+               Swal.fire(
+                  'Success!',
+                  'Your account registered successfully',
+                  'success'
+               );
+               localStorage.getItem('signup', '1');
+               setTimeout(function() {
+                  window.location = '../login/index.php';
+               }, 1500);
+            }
+         }
+      });
    });
 });
