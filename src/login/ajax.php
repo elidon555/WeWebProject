@@ -11,19 +11,23 @@ if ($_POST['action'] == 'login') {
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $pass = $_POST['password'];
 
-    $sql = "SELECT 
-           u.user_id,
-           u.email,
-           u.phone_number,
-           u.first_name,
-           u.last_name,
-           u.password,
-           roles.role_name 
-        FROM users as u,
-            users_to_roles as r,roles 
-        WHERE ( email='" . $email . "' OR phone_number='" . $email . "' )
-        AND u.user_id=r.user_id AND r.role_id=roles.role_id
+
+    $sql = "
+            SELECT u.user_id,
+                   u.email,
+                   u.phone_number,
+                   u.first_name,
+                   u.last_name,
+                   u.password,
+                   roles.role_name
+            FROM users as u
+                     INNER JOIN users_to_roles as r ON u.user_id = r.user_id
+                     INNER JOIN roles ON r.role_id = roles.role_id
+            WHERE email = '".$email."'
+               OR phone_number = '".$email."'
+            LIMIT 1
     ";
+
 
     $res = mysqli_query($conn, $sql);
 
@@ -31,6 +35,7 @@ if ($_POST['action'] == 'login') {
         echo json_encode(array("status" => 404, "message" => "Internal Server Error " . __LINE__));
         exit;
     }
+
 
     if (mysqli_num_rows($res) === 1 && $pass != "") {
 

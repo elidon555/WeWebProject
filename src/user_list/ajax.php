@@ -72,16 +72,23 @@ if ($_POST['action'] == 'load_single_user') {
                         ';
 
 
-    $result = mysqli_query($conn, $sql_get_user);
+    $result_get_user = mysqli_query($conn, $sql_get_user);
 
-    if (!$result) {
+    if (!$result_get_user) {
         echo json_encode(array("status" => 404, "message" => "Internal Server Error " . __LINE__));
         exit;
     }
 
-    $row = mysqli_fetch_assoc($result);
+    if (mysqli_num_rows($result_get_user) == 0) {
+        echo json_encode(array("status" => 404, "message" => "User does not exists " . __LINE__));
+        exit;
+    }
 
-    echo json_encode(array("id" => $row['user_id'], "first_name" => $row['first_name'], "last_name" => $row['last_name'], "atesia" => $row['atesia'], "date" => $row['date_of_birth'], "email" => $row['email'], "phone_number" => $row['phone_number'], "image_name" => $row['image_name'], "role" => $row['role_id']));
+    $row_get_user = mysqli_fetch_assoc($result_get_user);
+
+    $data = array("id" => $row_get_user['user_id'], "first_name" => $row_get_user['first_name'], "last_name" => $row_get_user['last_name'], "atesia" => $row_get_user['atesia'], "date" => $row_get_user['date_of_birth'], "email" => $row_get_user['email'], "phone_number" => $row_get_user['phone_number'], "image_name" => $row_get_user['image_name'], "role" => $row_get_user['role_id']);
+
+    echo json_encode($data);
 
 
     exit;

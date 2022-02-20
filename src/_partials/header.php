@@ -59,6 +59,11 @@ window.onerror=silentErrorHandler;
                     </li>
 
                     <li class="nav-item pl-1">
+                        <a class="nav-link" href="../salary_list"><i
+                                class="fas fa-list-ul fa-fw mr-1"></i>Salary DT</a>
+                    </li>
+
+                    <li class="nav-item pl-1">
                         <a class="nav-link" href="../product_sales"><i
                                 class="fas fa-list-ul fa-fw mr-1"></i>Sales</a>
                     </li>

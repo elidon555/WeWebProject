@@ -15,6 +15,7 @@ function create_edit_user() {
       var role = $('#roleUser').is(':checked') ? 'User' : 'Admin';
       var data = new FormData();
    } else {
+      id = $('#id_user').val();
       first_name = $('#first_name').val();
       last_name = $('#last_name').val();
       atesia = $('#atesia').val();
@@ -57,6 +58,7 @@ function create_edit_user() {
    if (window.edit === 1) {
       data.append('id', window.id);
    }
+   data.append('user_id',id)
    data.append('first_name', first_name);
    data.append('last_name', last_name);
    data.append('atesia', atesia);
@@ -227,10 +229,87 @@ $(function() {
           */
          var search_s = $('div.dataTables_filter input');
 
-         search_s.off()
+
          search_s.on('keyup', delay(function(event) {
             table.search(this.value).draw();
          }, 700));
+
+         $('.edit_btn').on('click', function() {
+            let id = $(this).attr('value');
+
+            $.ajax({
+               type: 'POST', url: 'ajax.php', data: {
+                  id: id, action: 'load_single_user'
+               }, cache: false, success: function(data) {
+                  data = JSON.parse(data);
+                  /**
+                   * Plotesojme formen me te gjitha te dhenat e marra nga backendi
+                   */
+                  $('#id_user').val(data.id);
+
+                  $('#first_name').val(data.first_name);
+                  $('#last_name').val(data.last_name);
+                  $('#atesia').val(data.atesia);
+                  //Convert default sql date to DD/MM/YYYY
+                  let date = data.date.split('-').reverse().join('/');
+                  $('#date').val(date);
+
+                  $('#email').val(data.email);
+                  $('#phone_number').val(data.phone_number);
+                  $('#edit_form_image').attr('src', '../_photos/' + data.image_name);
+                  $('#dw').attr('href', '../_photos/' + data.image_name);
+
+                  //Selektojme radio butonin ne baze te rolit
+                  var role = data.role;
+                  if (role === '1') {
+                     $('#roleAdmin').prop('checked', true);
+                  } else {
+                     $('#roleUser').prop('checked', true);
+                  }
+               }
+            });
+         });
+
+
+         $('.delete').on('click', function() {
+            //Marrim vleren e butonit i cili ka ID-ne
+            var id = $(this).attr('value');
+
+            swal
+               .fire({
+                  title: 'Are you sure?',
+                  text: 'You won\'t be able to revert this!',
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: '#3085d6',
+                  cancelButtonColor: '#d33',
+                  confirmButtonText: 'Yes, delete it!'
+               })
+               .then((result) => {
+                  /* Read more about isConfirmed, isDenied below */
+                  if (result.isConfirmed) {
+                     $.ajax({
+                        url: 'ajax.php', method: 'POST', data: {
+                           action: 'delete', id: id
+                        }, cache: false,
+
+                        success: function(response) {
+                           response = JSON.parse(response);
+
+                           if (response.status !== 200) {
+                              Swal.fire('Error!', response['message'], 'error');
+                           } else {
+                              Swal.fire('Success!', response['message'], 'success');
+                           }
+                        }
+                     });
+                  } else {
+                     Swal.fire('Action canceled!', '', 'info');
+                  }
+               });
+         });
+
+
       }
    });
 
@@ -296,94 +375,9 @@ $(function() {
     * END OF SIGNUP MODAL
     */
 
-   /**
-    * Mbasi tabela behet draw,
-    * Tani mund te ekzekutojme keto funksione
-    */
-   table.on('draw', function() {
-      //Enable these functions when we draw the table
-      load_single_user_detail();
-      delete_user();
-   });
 
    //full validation_check real time
    full_check();
 
-   function delete_user() {
-      //confirm delete yes or no
-      $('.delete').on('click', function() {
-         //Marrim vleren e butonit i cili ka ID-ne
-         var id = $(this).attr('value');
 
-         swal
-            .fire({
-               title: 'Are you sure?',
-               text: 'You won\'t be able to revert this!',
-               icon: 'warning',
-               showCancelButton: true,
-               confirmButtonColor: '#3085d6',
-               cancelButtonColor: '#d33',
-               confirmButtonText: 'Yes, delete it!'
-            })
-            .then((result) => {
-               /* Read more about isConfirmed, isDenied below */
-               if (result.isConfirmed) {
-                  $.ajax({
-                     url: 'ajax.php', method: 'POST', data: {
-                        action: 'delete', id: id
-                     }, cache: false,
-
-                     success: function(response) {
-                        response = JSON.parse(response);
-
-                        if (response.status !== 200) {
-                           Swal.fire('Error!', response['message'], 'error');
-                        } else {
-                           Swal.fire('Success!', response['message'], 'success');
-                        }
-                     }
-                  });
-               } else {
-                  Swal.fire('Action canceled!', '', 'info');
-               }
-            });
-      });
-   }
-
-   function load_single_user_detail() {
-      $('.edit_btn').on('click', function() {
-         let id = $(this).attr('value');
-
-         $.ajax({
-            type: 'POST', url: 'ajax.php', data: {
-               id: id, action: 'load_single_user'
-            }, cache: false, success: function(data) {
-               data = JSON.parse(data);
-               /**
-                * Plotesojme formen me te gjitha te dhenat e marra nga backendi
-                */
-
-               $('#first_name').val(data.first_name);
-               $('#last_name').val(data.last_name);
-               $('#atesia').val(data.atesia);
-               //Convert default sql date to DD/MM/YYYY
-               let date = data.date.split('-').reverse().join('/');
-               $('#date').val(date);
-
-               $('#email').val(data.email);
-               $('#phone_number').val(data.phone_number);
-               $('#edit_form_image').attr('src', '../_photos/' + data.image_name);
-               $('#dw').attr('href', '../_photos/' + data.image_name);
-
-               //Selektojme radio butonin ne baze te rolit
-               var role = data.role;
-               if (role === '1') {
-                  $('#roleAdmin').prop('checked', true);
-               } else {
-                  $('#roleUser').prop('checked', true);
-               }
-            }
-         });
-      });
-   }
 });

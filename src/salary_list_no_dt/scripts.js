@@ -20,10 +20,6 @@ $(function() {
          element.hide();
       }
 
-      console.log($(element).children().children().children()[0]);
-      console.log($(element).find('td')[0]);
-
-
    });
 
 

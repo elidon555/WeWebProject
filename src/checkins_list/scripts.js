@@ -184,46 +184,5 @@ $(function() {
       });
    }
 
-   $('#addCheckin').on('click', function(event) {
-      event.preventDefault();
 
-      /**
-       * Marrim te dhenat nga useri
-       */
-      var email = $('#email').val();
-      var checkin = $('#checkin').val();
-      var checkout = $('#checkout').val();
-      var date_s = $('#daterange');
-
-      var checkin_date = date_s
-         .data('daterangepicker')
-         .startDate.format('YYYY-MM-DD');
-      var checkout_date = date_s
-         .data('daterangepicker')
-         .endDate.format('YYYY-MM-DD');
-
-      //I cojme ne backend
-      $.ajax({
-         url: 'ajax.php', method: 'POST', data: {
-            action: 'add_checking',
-            email: email,
-            checkin: checkin,
-            checkout: checkout,
-            checkin_date: checkin_date,
-            checkout_date: checkout_date
-         }, cache: false, beforeSend: function(xhr) {
-            $('button').attr('disabled', 'disabled');
-         }, success: function(response) {
-            response = JSON.parse(response);
-            if (response.status != 200) {
-               Swal.fire('Error!', response['message'], 'error');
-            } else {
-               Swal.fire('Success!', response['message'], 'success');
-            }
-            setTimeout(function() {
-               $('button').prop('disabled', false);
-            }, 1500);
-         }
-      });
-   });
 });

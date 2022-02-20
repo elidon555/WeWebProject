@@ -5,6 +5,13 @@ if (!$_SESSION['id']) {
     header('location:' . SITEURL . 'login');
 }
 
+function printArray($array)
+{
+    echo "<pre>";
+    print_r($array);
+}
+
+
 //Check if weekend
 function isWeekend($date)
 {
@@ -15,7 +22,6 @@ function seconds2human($ss)
 {
     $m = floor(($ss % 3600) / 60);
     $h = floor($ss / 3600);
-
 
 
     if ($ss >= 3600) {
@@ -238,6 +244,11 @@ if ($_POST['action'] == 'update||delete') {
 
 
     if (isset($_POST['id'])) {
+
+        if (!empty($hash)) {
+            $password_query= ", password='" . $hash . "' ";
+        }
+
         $sql_query = " UPDATE users SET
                     first_name='" . $first_name . "',
                     last_name='" . $last_name . "',
@@ -247,15 +258,13 @@ if ($_POST['action'] == 'update||delete') {
                     phone_number='" . $phone_number . "',
                     date_of_birth='" . $date . "',
                     image_name='" . $image . "'
+                    $password_query
+                    WHERE user_id=" . $conn->escape_string($id) . "
                     
         ";
 
 
-        if (!empty($hash)) {
-            $sql_query .= ", password='" . $hash . "' ";
-        }
 
-        $sql_query .= "WHERE user_id=" . $conn->escape_string($id) . " ";
 
     } else {
         $sql_query = "INSERT INTO users SET
@@ -350,12 +359,6 @@ if ($_POST['action'] == 'update||delete') {
 /**
  * Funksion per printimin e vektorit
  */
-
-function printArray($array)
-{
-    echo "<pre>";
-    print_r($array);
-}
 
 
 ?>

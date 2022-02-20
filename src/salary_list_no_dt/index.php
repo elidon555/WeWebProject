@@ -13,11 +13,54 @@ include_once('../public/functions.php');
  */
 ?>
 <style>
-    table {
-        width: 750px;
+    .border-none {
         border-collapse: collapse;
-        margin:50px auto;
+        border: none;
+
     }
+
+
+    .border-none td {
+        border: 1px solid rgba(0, 0, 0, 0.51);
+    }
+
+    .border-none tr:first-child td {
+        border-top: none;
+    }
+
+    .border-none tr:last-child td {
+        border-bottom: none;
+    }
+
+    .border-none tr td:first-child {
+        border-left: none;
+    }
+
+    .border-none tr td:last-child {
+        border-right: none;
+    }
+
+
+    .border-none th {
+        border: 1px solid rgba(0, 0, 0, 0.51);
+    }
+
+    .border-none tr:first-child th {
+        border-top: none;
+    }
+
+    .border-none tr:last-child th {
+        border-bottom: none;
+    }
+
+    .border-none tr th:first-child {
+        border-left: none;
+    }
+
+    .border-none tr th:last-child {
+        border-right: none;
+    }
+
 
     /* Zebra striping */
     tr:nth-of-type(odd) {
@@ -33,7 +76,7 @@ include_once('../public/functions.php');
     td, th {
         padding: 10px;
         border: 1px solid #ccc;
-        text-align: left;
+        text-align: right;
         font-size: 18px;
     }
 
@@ -42,9 +85,18 @@ include_once('../public/functions.php');
     This query will take effect for any screen smaller than 760px
     and also iPads specifically.
     */
-    @media
-    only screen and (max-width: 760px),
-    (min-device-width: 768px) and (max-device-width: 1024px)  {
+    @media only screen and (max-width: 760px),
+    (min-device-width: 768px) and (max-device-width: 1024px) {
+
+
+        .altRow table {
+            width: 100%;
+        }
+
+        /* remove the padding for full width */
+        .altRow > td {
+            padding: 0
+        }
 
         table {
             width: 100%;
@@ -62,7 +114,9 @@ include_once('../public/functions.php');
             left: -9999px;
         }
 
-        tr { border: 1px solid #ccc; }
+        tr {
+            border: 1px solid #ccc;
+        }
 
         td {
             /* Behave  like a "row" */
@@ -88,7 +142,9 @@ include_once('../public/functions.php');
             font-weight: bold;
         }
 
+
     }
+
     .month {
         display: none
     }
@@ -623,7 +679,7 @@ foreach ($data as &$user_details) {
 <body id="body" style="font-family: Arial">
 
 <div style='width:1800px !important;margin: auto'>
-    <table class="table table-striped main_table">
+    <table style='outline: 1px solid black;table-layout:fixed' class="table table-striped main_table border-none">
         <thead>
 
         <tr>
@@ -639,7 +695,7 @@ foreach ($data as &$user_details) {
             <th style='vertical-align : middle;text-align:center;border-right: 2px solid red' scope='col' colspan='4'>
                 Payment In
             </th>
-            <th style='vertical-align : middle;text-align:center;border-right: 2px solid red' scope='col' colspan='4'>
+            <th style='vertical-align : middle;text-align:center' scope='col' colspan='4'>
                 Payment Out
             </th>
         </tr>
@@ -666,7 +722,7 @@ foreach ($data as &$user_details) {
             <th class='border-right' scope='col' colspan='1'>Holiday</th>
             <th class='border-right' scope='col' colspan='1'>Weekend</th>
             <th class='border-right' scope='col' colspan='1'>Normal</th>
-            <th style='vertical-align : middle;text-align:center;border-right: 2px solid red' scope='col' colspan='1'>
+            <th style='vertical-align : middle;text-align:center' scope='col' colspan='1'>
                 Total
             </th>
         <tr>
@@ -678,136 +734,277 @@ foreach ($data as &$user_details) {
 
 
             ?>
-            <tr class="user"  !important;">
-                <td ><i index='month' main='user' class='fas fa-plus-circle fa-lg text-dark ' style='font-size:25px;cursor: pointer;
+            <tr class="user">
+                <td><i class='fas fa-plus-circle fa-lg text-dark ' style='font-size:25px;cursor: pointer;
                             user-select: none;' aria-hidden='true'></i></td>
                 <td style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $data['first_name'] ?></td>
                 <td><?= $data['normal_hours_holiday'] ?></td>
                 <td><?= $data['normal_hours_weekend'] ?></td>
                 <td><?= $data['normal_hours_normal'] ?></td>
-                <td style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $data['normal_hours'] ?></td>
+                <td style='border-right: 2px solid red'><?= $data['normal_hours'] ?></td>
 
                 <td><?= $data['overtime_hours_holiday'] ?></td>
                 <td><?= $data['overtime_hours_weekend'] ?></td>
                 <td><?= $data['overtime_hours_normal'] ?> </td>
-                <td style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $data['overtime'] ?></td>
+                <td style='border-right: 2px solid red'><?= $data['overtime'] ?></td>
 
                 <td><?= $data['normal_salary_holiday'] ?></td>
                 <td><?= $data['normal_salary_weekend'] ?></td>
                 <td><?= $data['normal_salary_normal'] ?></td>
-                <td style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $data['normal_salary'] ?></td>
+                <td style='border-right: 2px solid red'><?= $data['normal_salary'] ?></td>
 
                 <td><?= $data['overtime_salary_holiday'] ?></td>
                 <td><?= $data['overtime_salary_weekend'] ?> </td>
                 <td><?= $data['overtime_salary_normal'] ?> </td>
-                <td style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $data['overtime_salary'] ?> </td>
+                <td><?= $data['overtime_salary'] ?> </td>
             </tr>
-            <?php
-            $i++;
 
-            $j = 0;
-            foreach ($data['row_details'] as $month_data) {
-
-                ?>
-                <tr class="month" style="color: blue !important;" >
-                    <td><i index='week' main='month' class='fas fa-plus-circle fa-lg text-dark ' style='font-size:25px;cursor: pointer;
-                            user-select: none;' aria-hidden='true'></i></td>
-                    <td style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $month_data['date'] ?></td>
-
-
-                    <td><?= $month_data['normal_hours_holiday'] ?></td>
-                    <td><?= $month_data['normal_hours_weekend'] ?></td>
-                    <td><?= $month_data['normal_hours_normal'] ?></td>
-                    <td style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $month_data['normal_hours'] ?></td>
-
-                    <td><?= $month_data['overtime_hours_holiday'] ?></td>
-                    <td><?= $month_data['overtime_hours_weekend'] ?> </td>
-                    <td><?= $month_data['overtime_hours_normal'] ?> </td>
-                    <td style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $month_data['overtime'] ?> </td>
-
-                    <td><?= $month_data['normal_salary_holiday'] ?></td>
-                    <td><?= $month_data['normal_salary_weekend'] ?></td>
-                    <td><?= $month_data['normal_salary_normal'] ?></td>
-                    <td style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $month_data['normal_salary'] ?></td>
-
-                    <td><?= $month_data['overtime_salary_holiday'] ?></td>
-                    <td><?= $month_data['overtime_salary_weekend'] ?> </td>
-                    <td><?= $month_data['overtime_salary_normal'] ?> </td>
-                    <td style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $month_data['overtime_salary'] ?> </td>
-                </tr>
-                <?php
-
-                $j++;
-
-                $z = 0;
-                foreach ($month_data['row_details'] as $week_data) {
-
-                    ?>
-                    <tr class="week" style="color: green !important;">
-                        <td><i index='day' main='week'  class='fas fa-plus-circle fa-lg text-dark ' style='font-size:25px;cursor: pointer;
-                            user-select: none;' aria-hidden='true'></i></td>
-                        <td style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $week_data['date'] ?></td>
+            <tr class='altRow month'>
+                <td class=' p-0' colspan='18'>
+                    <table style='width: 1800px;table-layout: fixed' class='table m-0 p-0 border-none'>
+                        <thead>
+                        <tr>
+                            <th class='border-right' scope='col'>Show</th>
+                            <th style='vertical-align : middle;text-align:center;border-right: 2px solid red'
+                                scope='col' colspan='1'>Month
+                            </th>
+                            <th class='border-right' scope='col' colspan='1'>Holiday</th>
+                            <th class='border-right' scope='col' colspan='1'>Weekend</th>
+                            <th class='border-right' scope='col' colspan='1'>Normal</th>
+                            <th style='vertical-align : middle;text-align:center;border-right: 2px solid red'
+                                scope='col' colspan='1'>
+                                Total
+                            </th>
+                            <th class='border-right' scope='col' colspan='1'>Holiday</th>
+                            <th class='border-right' scope='col' colspan='1'>Weekend</th>
+                            <th class='border-right' scope='col' colspan='1'>Normal</th>
+                            <th style='border-right: 2px solid red'
+                                scope='col' colspan='1'>
+                                Total
+                            </th>
+                            <th class='border-right' scope='col' colspan='1'>Holiday</th>
+                            <th class='border-right' scope='col' colspan='1'>Weekend</th>
+                            <th class='border-right' scope='col' colspan='1'>Normal</th>
+                            <th style='border-right: 2px solid red'
+                                scope='col' colspan='1'>
+                                Total
+                            </th>
+                            <th class='border-right' scope='col' colspan='1'>Holiday</th>
+                            <th class='border-right' scope='col' colspan='1'>Weekend</th>
+                            <th class='border-right' scope='col' colspan='1'>Normal</th>
+                            <th style='vertical-align : middle;text-align:center' scope='col' colspan='1'>
+                                Total
+                            </th>
+                        <tr>
+                        </thead>
 
 
-                        <td><?= $week_data['normal_hours_holiday'] ?></td>
-                        <td><?= $week_data['normal_hours_weekend'] ?></td>
-                        <td><?= $week_data['normal_hours_normal'] ?></td>
-                        <td  style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $week_data['normal_hours'] ?></td>
-
-                        <td><?= $week_data['overtime_hours_holiday'] ?></td>
-                        <td><?= $week_data['overtime_hours_weekend'] ?> </td>
-                        <td><?= $week_data['overtime_hours_normal'] ?> </td>
-                        <td  style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $week_data['overtime'] ?> </td>
-
-                        <td><?= $week_data['normal_salary_holiday'] ?></td>
-                        <td><?= $week_data['normal_salary_weekend'] ?></td>
-                        <td><?= $week_data['normal_salary_normal'] ?></td>
-                        <td  style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $week_data['normal_salary'] ?></td>
-
-                        <td><?= $week_data['overtime_salary_holiday'] ?></td>
-                        <td><?= $week_data['overtime_salary_weekend'] ?></td>
-                        <td><?= $week_data['overtime_salary_normal'] ?> </td>
-                        <td  style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $week_data['overtime_salary'] ?></td>
-                    </tr>
-                    <?php
-                    $z++;
-
-                    foreach ($week_data['row_details'] as $day_data) {
-
-                        ?>
-                        <tr class="day" style="color: darkorange !important;">
-                            <td></td>
-                            <td style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $day_data['date'] ?></td>
-
-                            <td><?= $day_data['normal_hours_holiday'] ?></td>
-                            <td><?= $day_data['normal_hours_weekend'] ?></td>
-                            <td><?= $day_data['normal_hours_normal'] ?></td>
-                            <td  style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $day_data['normal_hours'] ?></td>
-
-                            <td><?= $day_data['overtime_hours_holiday'] ?></td>
-                            <td><?= $day_data['overtime_hours_weekend'] ?></td>
-                            <td><?= $day_data['overtime_hours_normal'] ?></td>
-                            <td  style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $day_data['overtime'] ?> </td>
-
-                            <td><?= $day_data['normal_salary_holiday'] ?></td>
-                            <td><?= $day_data['normal_salary_weekend'] ?></td>
-                            <td><?= $day_data['normal_salary_normal'] ?></td>
-                            <td  style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $day_data['normal_salary'] ?></td>
-
-                            <td><?= $day_data['overtime_salary_holiday'] ?></td>
-                            <td><?= $day_data['overtime_salary_weekend'] ?></td>
-                            <td><?= $day_data['overtime_salary_normal'] ?></td>
-                            <td  style='vertical-align : middle;text-align:center;border-right: 2px solid red'><?= $day_data['overtime_salary'] ?></td>
-                        </tr>
                         <?php
-                    }
+                        $i++;
 
-                }
-            }
-            ?>
+
+                        $j = 0;
+                        foreach ($data['row_details'] as $month_data) {
+
+                            ?>
+                            <tr style="color: blue !important;">
+                                <td><i class='fas fa-plus-circle fa-lg text-dark ' style='font-size:25px;cursor: pointer;
+                            user-select: none;' aria-hidden='true'></i></td>
+                                <td style='border-right: 2px solid red'><?= $month_data['date'] ?></td>
+
+
+                                <td><?= $month_data['normal_hours_holiday'] ?></td>
+                                <td><?= $month_data['normal_hours_weekend'] ?></td>
+                                <td><?= $month_data['normal_hours_normal'] ?></td>
+                                <td style='border-right: 2px solid red'><?= $month_data['normal_hours'] ?></td>
+
+                                <td><?= $month_data['overtime_hours_holiday'] ?></td>
+                                <td><?= $month_data['overtime_hours_weekend'] ?> </td>
+                                <td><?= $month_data['overtime_hours_normal'] ?> </td>
+                                <td style='border-right: 2px solid red'><?= $month_data['overtime'] ?> </td>
+
+                                <td><?= $month_data['normal_salary_holiday'] ?></td>
+                                <td><?= $month_data['normal_salary_weekend'] ?></td>
+                                <td><?= $month_data['normal_salary_normal'] ?></td>
+                                <td style='border-right: 2px solid red'><?= $month_data['normal_salary'] ?></td>
+
+                                <td><?= $month_data['overtime_salary_holiday'] ?></td>
+                                <td><?= $month_data['overtime_salary_weekend'] ?> </td>
+                                <td><?= $month_data['overtime_salary_normal'] ?> </td>
+                                <td><?= $month_data['overtime_salary'] ?> </td>
+                            </tr>
+
+                            <tr class='altRow week m-0 p-0'>
+                                <td class='m-0 p-0' colspan='18'>
+                                    <table style='width: 1800px;table-layout:fixed' class='table m-0 p-0 border-none'>
+                                        <thead>
+                                        <tr>
+                                            <th class='border-right' scope='col' colspan='1'>Show</th>
+                                            <th style='border-right: 2px solid red' scope='col' colspan='1'>Week</th>
+                                            <th class='border-right' scope='col' colspan='1'>Holiday</th>
+                                            <th class='border-right' scope='col' colspan='1'>Weekend</th>
+                                            <th class='border-right' scope='col' colspan='1'>Normal</th>
+                                            <th style='border-right: 2px solid red'
+                                                scope='col' colspan='1'>
+                                                Total
+                                            </th>
+                                            <th class='border-right' scope='col' colspan='1'>Holiday</th>
+                                            <th class='border-right' scope='col' colspan='1'>Weekend</th>
+                                            <th class='border-right' scope='col' colspan='1'>Normal</th>
+                                            <th style='border-right: 2px solid red'
+                                                scope='col' colspan='1'>
+                                                Total
+                                            </th>
+                                            <th class='border-right' scope='col' colspan='1'>Holiday</th>
+                                            <th class='border-right' scope='col' colspan='1'>Weekend</th>
+                                            <th class='border-right' scope='col' colspan='1'>Normal</th>
+                                            <th style='border-right: 2px solid red'
+                                                scope='col' colspan='1'>
+                                                Total
+                                            </th>
+                                            <th class='border-right' scope='col' colspan='1'>Holiday</th>
+                                            <th class='border-right' scope='col' colspan='1'>Weekend</th>
+                                            <th class='border-right' scope='col' colspan='1'>Normal</th>
+                                            <th style='vertical-align : middle;text-align:center' scope='col'
+                                                colspan='1'>
+                                                Total
+                                            </th>
+                                        <tr>
+                                        </thead>
+                                        <?php
+
+                                        $j++;
+
+                                        $z = 0;
+                                        foreach ($month_data['row_details'] as $week_data) {
+
+                                            ?>
+                                            <tr style="color: green !important;">
+                                                <td><i class='fas fa-plus-circle fa-lg text-dark ' style='font-size:25px;cursor: pointer;
+                            user-select: none;' aria-hidden='true'></i></td>
+                                                <td style='border-right: 2px solid red'><?= $week_data['date'] ?></td>
+
+
+                                                <td><?= $week_data['normal_hours_holiday'] ?></td>
+                                                <td><?= $week_data['normal_hours_weekend'] ?></td>
+                                                <td><?= $week_data['normal_hours_normal'] ?></td>
+                                                <td style='border-right: 2px solid red'><?= $week_data['normal_hours'] ?></td>
+
+                                                <td><?= $week_data['overtime_hours_holiday'] ?></td>
+                                                <td><?= $week_data['overtime_hours_weekend'] ?> </td>
+                                                <td><?= $week_data['overtime_hours_normal'] ?> </td>
+                                                <td style='border-right: 2px solid red'><?= $week_data['overtime'] ?> </td>
+
+                                                <td><?= $week_data['normal_salary_holiday'] ?></td>
+                                                <td><?= $week_data['normal_salary_weekend'] ?></td>
+                                                <td><?= $week_data['normal_salary_normal'] ?></td>
+                                                <td style='border-right: 2px solid red'><?= $week_data['normal_salary'] ?></td>
+
+                                                <td><?= $week_data['overtime_salary_holiday'] ?></td>
+                                                <td><?= $week_data['overtime_salary_weekend'] ?></td>
+                                                <td><?= $week_data['overtime_salary_normal'] ?> </td>
+                                                <td><?= $week_data['overtime_salary'] ?></td>
+                                            </tr>
+                                            <tr class='altRow day m-0 p-0'>
+                                                <td class='m-0 p-0' colspan='18'>
+                                                    <table style='width: 1800px;table-layout:fixed'
+                                                           class='table m-0 p-0 border-none'>
+                                                        <thead>
+                                                        <tr>
+                                                            <th class='border-right' scope='col' colspan='1'>Show</th>
+                                                            <th style='border-right: 2px solid red' scope='col'
+                                                                colspan='1'>Date
+                                                            </th>
+                                                            <th class='border-right' scope='col' colspan='1'>Holiday
+                                                            </th>
+                                                            <th class='border-right' scope='col' colspan='1'>Weekend
+                                                            </th>
+                                                            <th class='border-right' scope='col' colspan='1'>Normal</th>
+                                                            <th style='border-right: 2px solid red'
+                                                                scope='col' colspan='1'>
+                                                                Total
+                                                            </th>
+                                                            <th class='border-right' scope='col' colspan='1'>Holiday
+                                                            </th>
+                                                            <th class='border-right' scope='col' colspan='1'>Weekend
+                                                            </th>
+                                                            <th class='border-right' scope='col' colspan='1'>Normal</th>
+                                                            <th style='border-right: 2px solid red'
+                                                                scope='col' colspan='1'>
+                                                                Total
+                                                            </th>
+                                                            <th class='border-right' scope='col' colspan='1'>Holiday
+                                                            </th>
+                                                            <th class='border-right' scope='col' colspan='1'>Weekend
+                                                            </th>
+                                                            <th class='border-right' scope='col' colspan='1'>Normal</th>
+                                                            <th style='border-right: 2px solid red'
+                                                                scope='col' colspan='1'>
+                                                                Total
+                                                            </th>
+                                                            <th class='border-right' scope='col' colspan='1'>Holiday
+                                                            </th>
+                                                            <th class='border-right' scope='col' colspan='1'>Weekend
+                                                            </th>
+                                                            <th class='border-right' scope='col' colspan='1'>Normal</th>
+                                                            <th style='vertical-align : middle;text-align:center'
+                                                                scope='col' colspan='1'>
+                                                                Total
+                                                            </th>
+                                                        <tr>
+                                                        </thead>
+                                                        <?php
+                                                        $z++;
+
+                                                        foreach ($week_data['row_details'] as $day_data) {
+
+                                                            ?>
+                                                            <tr style="color: darkorange !important;">
+
+                                                                <td colspan='2'
+                                                                    style='border-right: 2px solid red'><?= $day_data['date'] ?></td>
+
+                                                                <td><?= $day_data['normal_hours_holiday'] ?></td>
+                                                                <td><?= $day_data['normal_hours_weekend'] ?></td>
+                                                                <td><?= $day_data['normal_hours_normal'] ?></td>
+                                                                <td style='border-right: 2px solid red'><?= $day_data['normal_hours'] ?></td>
+
+                                                                <td><?= $day_data['overtime_hours_holiday'] ?></td>
+                                                                <td><?= $day_data['overtime_hours_weekend'] ?></td>
+                                                                <td><?= $day_data['overtime_hours_normal'] ?></td>
+                                                                <td style='border-right: 2px solid red'><?= $day_data['overtime'] ?> </td>
+
+                                                                <td><?= $day_data['normal_salary_holiday'] ?></td>
+                                                                <td><?= $day_data['normal_salary_weekend'] ?></td>
+                                                                <td><?= $day_data['normal_salary_normal'] ?></td>
+                                                                <td style='border-right: 2px solid red'><?= $day_data['normal_salary'] ?></td>
+
+                                                                <td><?= $day_data['overtime_salary_holiday'] ?></td>
+                                                                <td><?= $day_data['overtime_salary_weekend'] ?></td>
+                                                                <td><?= $day_data['overtime_salary_normal'] ?></td>
+                                                                <td><?= $day_data['overtime_salary'] ?></td>
+                                                            </tr>
+                                                            <?php
+                                                        }
+                                                        ?>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <?php
+                                        } ?>
+                                    </table>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+                    </table>
+                </td>
+            </tr>
             <?php
         }
         ?>
+
     </table>
 
 </body>
@@ -816,20 +1013,36 @@ foreach ($data as &$user_details) {
 
 <script type='text/javascript'>
 
-   $('table.main_table').on('click', 'i.fas', function() {
-      $(this).toggleClass('fa-plus-circle fa-minus-circle');
-      let attribute = $(this).attr('index');
-      let main = $(this).attr('main');
+   // $('table.main_table').on('click', 'i.fas', function() {
+   //    $(this).toggleClass('fa-plus-circle fa-minus-circle');
+   //
+   //    let element = $(this).closest('tr').next();
+   //
+   //    if (element.is(':visible')) {
+   //       element.fadeOut();
+   //    } else {
+   //       element.fadeIn();
+   //    }
+   //
+   // });
+</script>
 
-      let element = $(this).parent().parent().nextUntil(`tr.${main}`).filter(`tr.${attribute}`);
-
-      if (element.is(':visible')) {
-         element.fadeOut();
-      } else {
-         element.fadeIn()
+<script>
+   window.onload = function() {
+      var anchors = document.querySelectorAll(".fas")
+      for(var i = 0; i < anchors.length; i++) {
+         var anchor = anchors[i];
+         let detail =  anchor.parentNode.parentNode.nextElementSibling
+         anchor.addEventListener('click', function() {
+               if (window.getComputedStyle(detail).display === "none") {
+                  detail.style.display = "block";
+               }
+               else {
+                  detail.style.display = "none";
+               }
+         })
       }
 
-   });
-
+   }
 </script>
 
